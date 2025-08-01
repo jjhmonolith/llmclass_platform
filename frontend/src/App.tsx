@@ -1,0 +1,1 @@
+import { RouterProvider } from 'react-router-dom'\nimport { router } from './router'\n\nfunction App() {\n  return <RouterProvider router={router} />\n}\n\nexport default App"

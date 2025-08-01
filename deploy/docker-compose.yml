@@ -70,6 +70,18 @@ services:
       retries: 3
       start_period: 40s
 
+  # Frontend (Vite+React SPA)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-mono-class-platform}-frontend
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+    networks:
+      - app-network
+    
   # Nginx Proxy
   proxy:
     image: nginx:1.25-alpine
@@ -80,7 +92,6 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/mime.types:/etc/nginx/mime.types:ro
-      - ../frontend/public:/usr/share/nginx/html:ro
       - nginx_logs:/var/log/nginx
     ports:
       - "${PROXY_HTTP_PORT:-80}:80"
@@ -89,6 +100,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      frontend:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/healthz"]
       interval: 30s

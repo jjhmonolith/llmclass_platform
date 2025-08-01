@@ -192,6 +192,24 @@ deploy: setup-prod build
 	@make test-endpoints ENV=prod
 	@echo "✅ Deployment completed"
 
+# Frontend development
+dev-frontend: check-env
+	@echo "🚀 Starting frontend development server..."
+	@cd ../frontend && npm install && npm run dev
+
+dev-backend: check-env
+	@echo "🚀 Starting backend + database for development..."
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_FILE) up -d db backend
+	@echo "✅ Backend services started"
+	@echo "📝 Frontend: cd ../frontend && npm run dev"
+	@echo "📝 Backend: http://localhost:8000"
+	@echo "📝 Database: localhost:5432"
+
+dev-full: check-env
+	@echo "🚀 Starting full development environment..."
+	@make dev-backend ENV=$(ENV)
+	@make dev-frontend ENV=$(ENV)
+
 # Help
 help:
 	@echo "🚀 mono-class-platform Docker Commands"
@@ -206,6 +224,11 @@ help:
 	@echo "  restart       Restart services"
 	@echo "  build         Build services"
 	@echo ""
+	@echo "Development:"
+	@echo "  dev-frontend  Start frontend dev server (Vite)"
+	@echo "  dev-backend   Start backend + database only"
+	@echo "  dev-full      Start full dev environment"
+	@echo ""
 	@echo "Monitoring:"
 	@echo "  status        Show service status"
 	@echo "  health        Show health status"
@@ -213,7 +236,7 @@ help:
 	@echo "  logs-backend  Show backend logs"
 	@echo "  logs-proxy    Show proxy logs"
 	@echo ""
-	@echo "Development:"
+	@echo "Development Tools:"
 	@echo "  shell-backend Enter backend container"
 	@echo "  shell-db      Enter database"
 	@echo "  test-local     Run comprehensive local tests"
@@ -239,8 +262,9 @@ help:
 	@echo "  autostart-logs   Show auto-start logs"
 	@echo ""
 	@echo "Usage Examples:"
-	@echo "  make up ENV=dev     # Start in development"
-	@echo "  make up ENV=prod    # Start in production"
-	@echo "  make logs ENV=prod  # View production logs"
+	@echo "  make dev-full ENV=dev   # Full development setup"
+	@echo "  make up ENV=dev         # Start in development"
+	@echo "  make up ENV=prod        # Start in production"
+	@echo "  make logs ENV=prod      # View production logs"
 
-.PHONY: check-env setup-dev setup-prod build up down restart logs status health test-local test-local-build test-local-clean test-endpoints clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart autostart-setup autostart-status autostart-logs deploy help
+.PHONY: check-env setup-dev setup-prod build up down restart logs status health test-local test-local-build test-local-clean test-endpoints clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart autostart-setup autostart-status autostart-logs deploy dev-frontend dev-backend dev-full help
