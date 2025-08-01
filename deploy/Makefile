@@ -167,6 +167,23 @@ tunnel-restart:
 	@echo "🔄 Restarting Cloudflare Tunnel..."
 	@cd cloudflared && ./manage-tunnel.sh restart
 
+# Auto-start setup
+autostart-setup:
+	@echo "🚀 Setting up auto-start services..."
+	@cd launchd && ./setup-autostart.sh
+
+autostart-status:
+	@echo "📊 Checking auto-start services status..."
+	@launchctl list | grep -E "(llmclass|cloudflared)" || echo "No auto-start services found"
+
+autostart-logs:
+	@echo "📜 Showing auto-start logs..."
+	@echo "=== Services Log ==="
+	@tail -20 logs/services.log 2>/dev/null || echo "No services log found"
+	@echo ""
+	@echo "=== Watchdog Log ==="
+	@tail -20 logs/watchdog.log 2>/dev/null || echo "No watchdog log found"
+
 # Deployment
 deploy: setup-prod build
 	@echo "🚀 Deploying to production..."
@@ -216,9 +233,14 @@ help:
 	@echo "  tunnel-logs   Show tunnel logs"
 	@echo "  tunnel-restart Restart tunnel"
 	@echo ""
+	@echo "Auto-start (macOS):"
+	@echo "  autostart-setup  Setup auto-start services"
+	@echo "  autostart-status Check auto-start status"
+	@echo "  autostart-logs   Show auto-start logs"
+	@echo ""
 	@echo "Usage Examples:"
 	@echo "  make up ENV=dev     # Start in development"
 	@echo "  make up ENV=prod    # Start in production"
 	@echo "  make logs ENV=prod  # View production logs"
 
-.PHONY: check-env setup-dev setup-prod build up down restart logs status health test-local test-local-build test-local-clean test-endpoints clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart deploy help
+.PHONY: check-env setup-dev setup-prod build up down restart logs status health test-local test-local-build test-local-clean test-endpoints clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart autostart-setup autostart-status autostart-logs deploy help
