@@ -1,12 +1,15 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.utils import get_openapi
 from datetime import datetime
 import structlog
 
 from .core.settings import settings
 from .core.logging import configure_logging, RequestIDMiddleware, get_request_logger
 from .core.errors import global_exception_handler, http_exception_handler
+from .core.docs_auth import get_docs_dependency
 from .api.routes_health import router as health_router
 from .api.routes_dev import router as dev_router
 from .database import init_database
@@ -18,14 +21,14 @@ def create_app() -> FastAPI:
     # Configure logging
     logger = configure_logging()
     
-    # Create FastAPI app
+    # Create FastAPI app with conditional docs
     app = FastAPI(
         title=settings.project_name,
         version=settings.build_version,
         description="Educational Platform API - T1 Scaffolding",
-        docs_url=settings.docs_url,
-        redoc_url=settings.redoc_url,
-        openapi_url="/api/openapi.json" if settings.docs_enabled else None
+        docs_url=None,  # We'll handle this manually
+        redoc_url=None,  # We'll handle this manually
+        openapi_url=None  # We'll handle this manually
     )
     
     # Add request ID middleware
@@ -64,6 +67,33 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health_router)
     app.include_router(dev_router)
+    
+    # Custom OpenAPI documentation endpoints with optional auth
+    if settings.docs_enabled:
+        docs_dependency = get_docs_dependency()
+        
+        @app.get("/api/docs", include_in_schema=False)
+        async def custom_swagger_ui_html(credentials=docs_dependency):
+            return get_swagger_ui_html(
+                openapi_url="/api/openapi.json",
+                title=f"{app.title} - Swagger UI",
+            )
+        
+        @app.get("/api/redoc", include_in_schema=False)
+        async def redoc_html(credentials=docs_dependency):
+            return get_redoc_html(
+                openapi_url="/api/openapi.json",
+                title=f"{app.title} - ReDoc",
+            )
+        
+        @app.get("/api/openapi.json", include_in_schema=False)
+        async def get_open_api_endpoint(credentials=docs_dependency):
+            return get_openapi(
+                title=app.title,
+                version=app.version,
+                description=app.description,
+                routes=app.routes,
+            )
     
     # Exception handlers
     app.add_exception_handler(Exception, global_exception_handler)
