@@ -1,0 +1,10 @@
+# Robots.txt for mono-class-platform
+
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dev/
+Allow: /
+
+# Sitemap (will be added later)
+# Sitemap: https://platform.llmclass.org/sitemap.xml

@@ -1,0 +1,37 @@
+# Development overrides for docker-compose.yml
+services:
+  backend:
+    # Enable hot reload in development
+    volumes:
+      - ../backend:/app  # Read-write for hot reload
+    environment:
+      DEBUG_MODE: "true"
+      ENABLE_ECHO_ENDPOINT: "true"
+      LOG_LEVEL: "debug"
+    # Override healthcheck for faster development
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 2
+      start_period: 20s
+
+  proxy:
+    # Development-specific nginx config (if needed)
+    # ports:
+    #   - "8080:80"  # Use different port if needed
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 2
+
+  db:
+    # Development database config
+    environment:
+      # Add development-specific settings
+      POSTGRES_LOG_STATEMENT: "all"  # Log all SQL statements
+    # Faster healthcheck in development
+    healthcheck:
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
