@@ -107,6 +107,40 @@ shell-db: check-env
 	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_FILE) exec db psql -U $(shell grep POSTGRES_USER $(ENV_FILE) | cut -d'=' -f2) -d $(shell grep POSTGRES_DB $(ENV_FILE) | cut -d'=' -f2)
 
 # Testing
+test: check-env
+	@echo "🧪 Running test suite..."
+	@cd .. && python -m pytest tests/ -v
+
+test-cov: check-env
+	@echo "🧪 Running tests with coverage..."
+	@cd .. && python -m pytest tests/ -v --cov=backend/app --cov-report=term-missing
+
+# Database migrations
+db-upgrade: check-env
+	@echo "🗄️  Running database migrations..."
+	@cd ../backend && python -m alembic upgrade head
+
+db-downgrade: check-env
+	@echo "🗄️  Downgrading database..."
+	@cd ../backend && python -m alembic downgrade -1
+
+db-revision: check-env
+	@echo "🗄️  Creating new migration revision..."
+	@if [ -z "$$MSG" ]; then \
+		echo "❌ Please provide a message: make db-revision MSG='description'"; \
+		exit 1; \
+	fi
+	@cd ../backend && python -m alembic revision -m "$$MSG"
+
+db-auto-revision: check-env
+	@echo "🗄️  Creating auto-generated migration revision..."
+	@if [ -z "$$MSG" ]; then \
+		echo "❌ Please provide a message: make db-auto-revision MSG='description'"; \
+		exit 1; \
+	fi
+	@cd ../backend && python -m alembic revision --autogenerate -m "$$MSG"
+
+# Testing
 test-local:
 	@echo "🧪 Running comprehensive local tests..."
 	@./test-local.sh
@@ -239,10 +273,20 @@ help:
 	@echo "Development Tools:"
 	@echo "  shell-backend Enter backend container"
 	@echo "  shell-db      Enter database"
-	@echo "  test-local     Run comprehensive local tests"
+	@echo ""
+	@echo "Testing:"
+	@echo "  test          Run pytest test suite"
+	@echo "  test-cov      Run tests with coverage"
+	@echo "  test-local    Run comprehensive local tests"
 	@echo "  test-local-build Run local tests with image rebuild"
 	@echo "  test-local-clean Run local tests with cleanup"
 	@echo "  test-endpoints Test API endpoints"
+	@echo ""
+	@echo "Database Migrations:"
+	@echo "  db-upgrade    Run pending migrations"
+	@echo "  db-downgrade  Rollback last migration"
+	@echo "  db-revision MSG='...' Create new migration"
+	@echo "  db-auto-revision MSG='...' Auto-generate migration"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  backup-db     Backup database"
@@ -267,4 +311,4 @@ help:
 	@echo "  make up ENV=prod        # Start in production"
 	@echo "  make logs ENV=prod      # View production logs"
 
-.PHONY: check-env setup-dev setup-prod build up down restart logs status health test-local test-local-build test-local-clean test-endpoints clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart autostart-setup autostart-status autostart-logs deploy dev-frontend dev-backend dev-full help
+.PHONY: check-env setup-dev setup-prod build up down restart logs status health shell-backend shell-db test test-cov test-local test-local-build test-local-clean test-endpoints db-upgrade db-downgrade db-revision db-auto-revision clean backup-db tunnel-setup tunnel-start tunnel-stop tunnel-status tunnel-logs tunnel-restart autostart-setup autostart-status autostart-logs deploy dev-frontend dev-backend dev-full help
