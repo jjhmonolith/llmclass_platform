@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Classroom Proto3 - FIRE 프롬프트 학습</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .start-btn {
+            background: white;
+            color: #ff6b35;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .features {
+            margin-top: 60px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .feature h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 LLM Classroom Proto3</h1>
+        <p class="subtitle">FIRE 프롬프트 학습 플랫폼</p>
+        
+        <button class="start-btn" onclick="startLearning()">
+            학습 시작하기
+        </button>
+
+        <div class="features">
+            <div class="feature">
+                <h3>📚 주제별 학습</h3>
+                <p>6가지 주제 중 선택하여<br>맞춤형 학습 진행</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ 난이도 조절</h3>
+                <p>초급·중급·고급<br>수준별 학습 지원</p>
+            </div>
+            <div class="feature">
+                <h3>🎓 학교급 맞춤</h3>
+                <p>초등~대학생<br>연령별 피드백</p>
+            </div>
+            <div class="feature">
+                <h3>🔥 FIRE 평가</h3>
+                <p>Focus·Input·Rules·Effect<br>효과적 프롬프트 작성법</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startLearning() {
+            window.location.href = 'setup.html';
+        }
+
+        // 페이지 로드 시 자동 리다이렉트 (3초 후)
+        setTimeout(() => {
+            window.location.href = 'setup.html';
+        }, 3000);
+    </script>
+</body>
+</html>

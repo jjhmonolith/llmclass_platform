@@ -1,0 +1,22 @@
+[Unit]
+Description=LLM Classroom Proto3 FastAPI Application
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/llm_classroom_proto3
+Environment=PATH=/home/ubuntu/llm_classroom_proto3/venv/bin
+Environment=ENV=production
+Environment=PORT=8080
+EnvironmentFile=-/home/ubuntu/llm_classroom_proto3/.env
+ExecStart=/home/ubuntu/llm_classroom_proto3/venv/bin/gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8080 --timeout 120
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+Wantedby=multi-user.target

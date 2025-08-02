@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRE 프롬프트 학습 - LLM Classroom Proto3</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            width: 98%;
+            max-width: 1800px;
+            height: 90vh;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 좌측: 학습 목표 영역 */
+        .objective-container {
+            flex: 1.8;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .objective-header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .objective-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        /* 중앙: 대화 영역 */
+        .chat-container {
+            flex: 4;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .chat-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            resize: none;
+            min-height: 60px;
+            max-height: 120px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .chat-input:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 프롬프트-응답 쌍 */
+        .conversation-pair {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .prompt-box {
+            background: #fff5f0;
+            border: 1px solid #ff6b35;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #ff6b35;
+        }
+
+        .response-box {
+            background: #f0fff4;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .box-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .box-content {
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .loading-response {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .empty-state p {
+            margin: 10px 0;
+        }
+
+        /* 우측: 피드백 영역 */
+        .feedback-container {
+            flex: 2.2;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .feedback-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 10px rgba(240, 147, 251, 0.3); }
+            to { box-shadow: 0 0 20px rgba(240, 147, 251, 0.6); }
+        }
+
+        .feedback-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        /* 메시지 스타일 */
+        .message {
+            display: flex;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 100%;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* FIRE 점수 표시 */
+        .fire-scores {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .rtcf-scores h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-name {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .score-value {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1.1rem;
+        }
+
+        .feedback-section {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ff6b35;
+        }
+
+        .feedback-section h4 {
+            color: #ff6b35;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .feedback-section p {
+            color: #666;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-style: italic;
+            padding: 15px 0;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6b35;
+            animation: bounce 1.4s ease-in-out infinite both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            } 40% { 
+                transform: scale(1.0);
+            }
+        }
+
+        /* 점수 추이 그래프 */
+        .score-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin: 15px 0;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 점수 변화량 표시 */
+        .score-change {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .score-change.positive {
+            color: #27ae60;
+        }
+
+        .score-change.negative {
+            color: #e74c3c;
+        }
+
+        .score-change.neutral {
+            color: #95a5a6;
+        }
+
+        /* 축하 애니메이션 */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework 2s ease-out forwards;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(20);
+                opacity: 0;
+            }
+        }
+
+        .celebration-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff6b35;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: celebrationText 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        @keyframes celebrationText {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* 반응형 */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                gap: 15px;
+            }
+            
+            .objective-container, .chat-container, .feedback-container {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 좌측: 학습 목표 영역 -->
+        <div class="objective-container">
+            <div class="objective-header">
+                📋 학습 목표
+            </div>
+            <div class="objective-content" id="objectiveContent">
+                <div class="loading">
+                    <span>학습 목표를 생성하고 있습니다</span>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 중앙: 프롬프트 영역 -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <span>💬 프롬프트 작성</span>
+                <button class="settings-btn" onclick="goToSettings()">⚙️ 설정</button>
+            </div>
+            <div class="chat-content" id="chatContent">
+                <!-- 빈 상태 표시 -->
+                <div class="empty-state" id="emptyState">
+                    <p>💡 좌측의 학습 목표를 참고하여 AI에게 질문해보세요.</p>
+                    <p>효과적인 프롬프트 작성을 위해 <strong>FIRE 요소</strong>를 고려해보세요:</p>
+                    <p><strong>Focus</strong> (무엇을) • <strong>Input</strong> (어떤 정보로) • <strong>Rules</strong> (어떻게) • <strong>Effect</strong> (어떤 목적으로)</p>
+                </div>
+                
+                <!-- 대화 히스토리가 여기에 동적으로 추가됩니다 -->
+            </div>
+            <div class="chat-input-area">
+                <div class="input-group">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="프롬프트를 입력하세요... (Shift+Enter로 줄바꿈)"
+                        rows="2"
+                    ></textarea>
+                    <button id="sendBtn" class="send-btn" onclick="sendMessage()">전송</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 피드백 영역 -->
+        <div class="feedback-container">
+            <div class="feedback-header">
+                🔥 FIRE 피드백
+            </div>
+            <div class="feedback-content" id="feedbackContent">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <p>프롬프트를 입력하시면<br>FIRE 평가 결과가<br>여기에 표시됩니다</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let settings = {};
+        let chatHistory = [];
+        let learningObjective = '';
+        let scoreHistory = []; // 점수 추이 저장
+
+        // 마크다운 렌더링 함수
+        function renderMarkdown(text) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            // 마크다운 라이브러리가 없으면 기본 텍스트
+            return text.replace(/\n/g, '<br>');
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            generateLearningObjective();
+            setupEventListeners();
+        });
+
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('learningSettings');
+            if (!savedSettings) {
+                alert('설정이 없습니다. 설정 페이지로 이동합니다.');
+                window.location.href = 'setup.html';
+                return;
+            }
+            settings = JSON.parse(savedSettings);
+        }
+
+        function generateLearningObjective() {
+            const topicTemplates = {
+                '환경 문제': {
+                    title: '🌍 환경 문제 보고서 작성',
+                    mission: '환경 문제에 대한 **2페이지 보고서**를 작성하세요.',
+                    options: '지구온난화, 해양오염, 삼림파괴, 대기오염 중 선택'
+                },
+                '과학 기술': {
+                    title: '🔬 과학 기술 조사 보고서',
+                    mission: '최신 과학 기술에 대한 **조사 발표자료**를 작성하세요.',
+                    options: 'AI, 생명공학, 우주기술, 신재생에너지 중 선택'
+                },
+                '역사와 문화': {
+                    title: '📜 역사와 문화 탐구',
+                    mission: '역사적 사건이나 문화 현상에 대한 **탐구 보고서**를 작성하세요.',
+                    options: '근현대사, 세계사, 전통문화, 문화유산 중 선택'
+                },
+                '사회 이슈': {
+                    title: '🏛️ 사회 문제 분석',
+                    mission: '현재 사회 이슈에 대한 **분석 리포트**를 작성하세요.',
+                    options: '고령화, 청년문제, 도시화, 사회복지 중 선택'
+                },
+                '문학과 예술': {
+                    title: '🎨 문학·예술 감상',
+                    mission: '문학 작품이나 예술 작품에 대한 **감상 에세이**를 작성하세요.',
+                    options: '고전문학, 현대문학, 미술, 음악 중 선택'
+                },
+                '경제와 경영': {
+                    title: '💼 경제·경영 사례 연구',
+                    mission: '경제나 경영 관련 **사례 분석 보고서**를 작성하세요.',
+                    options: '시장경제, 기업전략, 창업, 금융 중 선택'
+                }
+            };
+
+            const template = topicTemplates[settings.topic] || topicTemplates['환경 문제'];
+            learningObjective = template.mission;
+
+            const objectiveMarkdown = `
+# ${template.title}
+
+## 🎯 미션
+${template.mission}
+
+## 📌 주제  
+${template.options}
+
+## 🔥 FIRE 프롬프트 작성법
+**효과적인 프롬프트를 위한 4가지 핵심 요소:**
+
+- **F: Focus** - 무엇을 알고 싶은가? (명확한 목적)
+- **I: Input** - 어떤 정보를 주었는가? (배경, 맥락, 자료)  
+- **R: Rules** - 어떻게 표현되길 원하는가? (형식, 조건)
+- **E: Effect** - 결과가 어떻게 쓰일 것인가? (사용 목적)
+
+> 💡 **팁:** 각 요소를 고려하여 AI가 더 정확하고 유용한 답변을 할 수 있도록 도와주세요!
+            `;
+
+            const objectiveHtml = `
+                <div style="background: white; padding: 20px; border-radius: 12px;">
+                    ${renderMarkdown(objectiveMarkdown)}
+                </div>
+            `;
+
+            document.getElementById('objectiveContent').innerHTML = objectiveHtml;
+        }
+
+        function setupEventListeners() {
+            const chatInput = document.getElementById('chatInput');
+            
+            // Enter로 전송 (Shift+Enter는 줄바꿈)
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // 자동 크기 조절
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const prompt = input.value.trim();
+
+            if (!prompt) {
+                alert('프롬프트를 입력해주세요.');
+                return;
+            }
+
+            // 빈 상태 숨기기
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+
+            // UI 업데이트
+            input.value = '';
+            input.style.height = 'auto';
+            sendBtn.disabled = true;
+            sendBtn.textContent = '전송 중...';
+
+            // 새 대화 쌍 추가
+            const conversationId = 'conv-' + Date.now();
+            addConversationPair(conversationId, prompt);
+
+            // AI 응답과 RTCF 평가를 독립적으로 처리
+            let aiResponse = null;
+            let evaluation = null;
+            let responsesCompleted = 0;
+
+            // AI 응답 처리
+            getAIResponse(prompt)
+                .then(response => {
+                    aiResponse = response;
+                    updateConversationResponse(conversationId, response);
+                    responsesCompleted++;
+                    checkAllCompleted();
+                })
+                .catch(error => {
+                    console.error('AI Response Error:', error);
+                    updateConversationResponse(conversationId, `AI 응답 오류: ${error.message}`, true);
+                    responsesCompleted++;
+                    checkAllCompleted();
+                });
+
+            // FIRE 평가 처리 (피드백 영역에 로딩 표시)
+            displayFeedbackLoading();
+            
+            evaluatePrompt(prompt)
+                .then(result => {
+                    evaluation = result;
+                    displayFeedback(result);
+                    responsesCompleted++;
+                    checkAllCompleted();
+                })
+                .catch(error => {
+                    console.error('Evaluation Error:', error);
+                    displayFeedback({
+                        fire_scores: {
+                            focus: { score: 0, feedback: "평가 중 오류가 발생했습니다." },
+                            input: { score: 0, feedback: "평가 중 오류가 발생했습니다." },
+                            rules: { score: 0, feedback: "평가 중 오류가 발생했습니다." },
+                            effect: { score: 0, feedback: "평가 중 오류가 발생했습니다." }
+                        },
+                        improvements: [],
+                        suggestions: ["평가를 다시 시도해보세요."],
+                        motivational_comment: "오류가 발생했지만 계속 도전해보세요!"
+                    });
+                    responsesCompleted++;
+                    checkAllCompleted();
+                });
+
+            function checkAllCompleted() {
+                if (responsesCompleted >= 2) {
+                    // 모든 응답이 완료되면 히스토리에 추가
+                    if (aiResponse && evaluation) {
+                        chatHistory.push({
+                            prompt: prompt,
+                            response: aiResponse,
+                            evaluation: evaluation,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                    
+                    // UI 복원
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = '전송';
+                }
+            }
+        }
+
+        function addConversationPair(id, prompt) {
+            const chatContent = document.getElementById('chatContent');
+            const conversationDiv = document.createElement('div');
+            conversationDiv.className = 'conversation-pair';
+            conversationDiv.id = id;
+            
+            conversationDiv.innerHTML = `
+                <div class="prompt-box">
+                    <div class="box-title">📝 프롬프트</div>
+                    <div class="box-content">${renderMarkdown(prompt)}</div>
+                </div>
+                <div class="response-box">
+                    <div class="box-title">🤖 AI 응답</div>
+                    <div class="box-content" id="${id}-response">
+                        <div class="loading-response">
+                            <span>AI가 응답을 생성하고 있습니다</span>
+                            <div class="loading-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatContent.appendChild(conversationDiv);
+            
+            // 스크롤을 새 대화로 이동
+            conversationDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function updateConversationResponse(id, response, isError = false) {
+            const responseElement = document.getElementById(id + '-response');
+            if (responseElement) {
+                responseElement.innerHTML = isError ? 
+                    `<div style="color: #dc3545;">${renderMarkdown(response)}</div>` : 
+                    renderMarkdown(response);
+            }
+        }
+
+        async function getAIResponse(prompt) {
+            try {
+                const response = await fetch('/api/oneshot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        temperature: 0.7,
+                        maxTokens: 1000
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `HTTP ${response.status}: AI 응답 생성에 실패했습니다.`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'AI 응답 생성에 실패했습니다.');
+                }
+                
+                return data.response;
+            } catch (error) {
+                console.error('AI Response Error:', error);
+                throw error;
+            }
+        }
+
+        async function evaluatePrompt(prompt) {
+            try {
+                const previousPrompt = chatHistory.length > 0 ? 
+                    chatHistory[chatHistory.length - 1].prompt : null;
+
+                const response = await fetch('/api/evaluate-prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentPrompt: prompt,
+                        learningObjective: learningObjective,
+                        previousPrompt: previousPrompt,
+                        settings: settings
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `HTTP ${response.status}: 프롬프트 평가에 실패했습니다.`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || '프롬프트 평가에 실패했습니다.');
+                }
+                
+                return data.evaluation;
+            } catch (error) {
+                console.error('Evaluation Error:', error);
+                throw error;
+            }
+        }
+
+
+        function displayFeedbackLoading() {
+            const feedbackHtml = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <div class="loading-response">
+                        <span>FIRE 평가를 진행하고 있습니다</span>
+                        <div class="loading-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('feedbackContent').innerHTML = feedbackHtml;
+        }
+
+        // 점수 추이 그래프 생성
+        function createScoreChart() {
+            if (scoreHistory.length < 2) return '';
+            
+            const maxScore = 12;
+            const width = 300;
+            const height = 150;
+            const padding = 30;
+            
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            
+            // 점들 계산
+            const points = scoreHistory.map((score, index) => {
+                const x = padding + (chartWidth * index) / (scoreHistory.length - 1);
+                const y = height - padding - (chartHeight * score) / maxScore;
+                return `${x},${y}`;
+            }).join(' ');
+            
+            // Y축 눈금
+            const yTicks = [0, 3, 6, 9, 12].map(value => {
+                const y = height - padding - (chartHeight * value) / maxScore;
+                return `<line x1="${padding-5}" y1="${y}" x2="${padding}" y2="${y}" stroke="#ccc" stroke-width="1"/>
+                        <text x="${padding-10}" y="${y+3}" text-anchor="end" font-size="10" fill="#666">${value}</text>`;
+            }).join('');
+            
+            return `
+                <div class="score-chart">
+                    <h3>📈 총점 추이</h3>
+                    <div class="chart-container">
+                        <svg class="chart-svg" viewBox="0 0 ${width} ${height}">
+                            <!-- 배경 격자 -->
+                            ${[0, 3, 6, 9, 12].map(value => {
+                                const y = height - padding - (chartHeight * value) / maxScore;
+                                return `<line x1="${padding}" y1="${y}" x2="${width-padding}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
+                            }).join('')}
+                            
+                            <!-- Y축 눈금 -->
+                            ${yTicks}
+                            
+                            <!-- 축 -->
+                            <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height-padding}" stroke="#333" stroke-width="2"/>
+                            <line x1="${padding}" y1="${height-padding}" x2="${width-padding}" y2="${height-padding}" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- 선 그래프 -->
+                            <polyline points="${points}" fill="none" stroke="#ff6b35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- 점들 -->
+                            ${scoreHistory.map((score, index) => {
+                                const x = padding + (chartWidth * index) / (scoreHistory.length - 1);
+                                const y = height - padding - (chartHeight * score) / maxScore;
+                                return `<circle cx="${x}" cy="${y}" r="4" fill="#ff6b35" stroke="white" stroke-width="2"/>`;
+                            }).join('')}
+                        </svg>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 축하 애니메이션 실행
+        function showCelebration() {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            
+            // 폭죽 효과
+            for (let i = 0; i < 15; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + '%';
+                firework.style.top = Math.random() * 100 + '%';
+                firework.style.backgroundColor = ['#ff6b35', '#f7931e', '#27ae60', '#e74c3c', '#3498db'][Math.floor(Math.random() * 5)];
+                firework.style.animationDelay = Math.random() * 1 + 's';
+                celebration.appendChild(firework);
+            }
+            
+            // 축하 텍스트
+            const text = document.createElement('div');
+            text.className = 'celebration-text';
+            text.textContent = '🎉 훌륭해요! 🎉';
+            celebration.appendChild(text);
+            
+            document.body.appendChild(celebration);
+            
+            // 3초 후 제거
+            setTimeout(() => {
+                document.body.removeChild(celebration);
+            }, 3000);
+        }
+
+        function displayFeedback(evaluation) {
+            const circles = (score) => '●'.repeat(score) + '○'.repeat(3 - score);
+            
+            // FIRE 점수 처리 (총점 계산)
+            const fireScores = evaluation.fire_scores || {};
+            const totalScore = evaluation.total_score || Object.values(fireScores).reduce((sum, item) => sum + (item.score || 0), 0);
+            const grade = evaluation.grade || (totalScore >= 10 ? '우수' : totalScore >= 7 ? '양호' : totalScore >= 4 ? '개선 필요' : '부적절');
+            
+            // 이전 점수와 비교
+            const previousScore = scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1] : null;
+            const previousEvaluation = chatHistory.length > 0 ? chatHistory[chatHistory.length - 1].evaluation : null;
+            
+            // 점수 변화량 계산 함수
+            const getScoreChange = (current, previous, key) => {
+                if (!previous || !previous.fire_scores || !previous.fire_scores[key]) return '';
+                const diff = current - previous.fire_scores[key].score;
+                if (diff > 0) return `<span class="score-change positive">+${diff}</span>`;
+                if (diff < 0) return `<span class="score-change negative">${diff}</span>`;
+                return `<span class="score-change neutral">±0</span>`;
+            };
+            
+            // 총점이 향상되었는지 확인
+            const scoreImproved = previousScore !== null && totalScore > previousScore;
+            
+            // 점수 히스토리 업데이트
+            scoreHistory.push(totalScore);
+            
+            // 축하 애니메이션 실행
+            if (scoreImproved) {
+                setTimeout(() => showCelebration(), 500);
+            }
+            
+            // 차트 HTML 생성
+            const chartHtml = createScoreChart();
+            
+            const feedbackHtml = `
+                ${chartHtml}
+                
+                <div class="fire-scores">
+                    <h3>🔥 FIRE 점수</h3>
+                    <div class="score-item">
+                        <span class="score-name">Focus (무엇을)</span>
+                        <div class="score-value">
+                            <span class="stars">${circles(fireScores.focus?.score || 0)}</span>
+                            <span>${fireScores.focus?.score || 0}/3</span>
+                            ${getScoreChange(fireScores.focus?.score || 0, previousEvaluation, 'focus')}
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-name">Input (어떤 정보로)</span>
+                        <div class="score-value">
+                            <span class="stars">${circles(fireScores.input?.score || 0)}</span>
+                            <span>${fireScores.input?.score || 0}/3</span>
+                            ${getScoreChange(fireScores.input?.score || 0, previousEvaluation, 'input')}
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-name">Rules (어떻게)</span>
+                        <div class="score-value">
+                            <span class="stars">${circles(fireScores.rules?.score || 0)}</span>
+                            <span>${fireScores.rules?.score || 0}/3</span>
+                            ${getScoreChange(fireScores.rules?.score || 0, previousEvaluation, 'rules')}
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-name">Effect (어떤 목적으로)</span>
+                        <div class="score-value">
+                            <span class="stars">${circles(fireScores.effect?.score || 0)}</span>
+                            <span>${fireScores.effect?.score || 0}/3</span>
+                            ${getScoreChange(fireScores.effect?.score || 0, previousEvaluation, 'effect')}
+                        </div>
+                    </div>
+                    <div class="score-item" style="border-top: 2px solid #ddd; margin-top: 10px; padding-top: 10px; font-weight: bold;">
+                        <span class="score-name">총점</span>
+                        <div class="score-value">
+                            <span style="color: ${totalScore >= 10 ? '#28a745' : totalScore >= 7 ? '#ffc107' : totalScore >= 4 ? '#fd7e14' : '#dc3545'}; font-weight: bold;">${grade}</span>
+                            <span>${totalScore}/12</span>
+                            ${previousScore !== null ? (totalScore > previousScore ? `<span class="score-change positive">+${totalScore - previousScore}</span>` : totalScore < previousScore ? `<span class="score-change negative">${totalScore - previousScore}</span>` : `<span class="score-change neutral">±0</span>`) : ''}
+                        </div>
+                    </div>
+                </div>
+
+                ${evaluation.improvements && evaluation.improvements.length > 0 ? `
+                <div class="feedback-section">
+                    <h4>✅ 개선된 점</h4>
+                    ${evaluation.improvements.map(imp => `<p>• ${imp}</p>`).join('')}
+                </div>
+                ` : ''}
+
+                <div class="feedback-section">
+                    <h4>💡 개선 제안</h4>
+                    ${evaluation.suggestions.map(sug => `<p>• ${sug}</p>`).join('')}
+                </div>
+
+                <div class="feedback-section" style="border-left-color: #28a745;">
+                    <h4>🎉 격려 메시지</h4>
+                    <p>${evaluation.motivational_comment}</p>
+                </div>
+            `;
+
+            document.getElementById('feedbackContent').innerHTML = feedbackHtml;
+        }
+
+
+        function goToSettings() {
+            if (confirm('설정을 변경하면 현재 진행 중인 학습이 초기화됩니다. 계속하시겠습니까?')) {
+                window.location.href = 'setup.html';
+            }
+        }
+    </script>
+</body>
+</html>

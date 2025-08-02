@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습 설정 - LLM Classroom Proto3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .option {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .option:hover {
+            border-color: #ff6b35;
+            background: #fff5f0;
+        }
+
+        .option.selected {
+            border-color: #ff6b35;
+            background: #ff6b35;
+            color: white;
+        }
+
+        .option h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .option p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .option.selected p {
+            opacity: 0.9;
+        }
+
+        .start-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .start-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .start-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 학습 설정</h1>
+            <p>나에게 맞는 설정을 선택해주세요</p>
+        </div>
+
+        <div class="content">
+            <button class="back-btn" onclick="goBack()">&larr; 뒤로가기</button>
+
+            <!-- 학습 주제 선택 -->
+            <div class="section">
+                <h2>📚 학습 주제 선택</h2>
+                <div class="options" id="topicOptions">
+                    <div class="option" data-topic="환경 문제">
+                        <h3>🌍 환경 문제</h3>
+                        <p>환경오염, 기후변화, 지속가능발전 등</p>
+                    </div>
+                    <div class="option" data-topic="과학 기술">
+                        <h3>🔬 과학 기술</h3>
+                        <p>AI, 생명공학, 우주기술, 신재생에너지 등</p>
+                    </div>
+                    <div class="option" data-topic="역사와 문화">
+                        <h3>📜 역사와 문화</h3>
+                        <p>근현대사, 세계사, 전통문화, 문화유산 등</p>
+                    </div>
+                    <div class="option" data-topic="사회 이슈">
+                        <h3>🏛️ 사회 이슈</h3>
+                        <p>고령화, 청년문제, 도시화, 사회복지 등</p>
+                    </div>
+                    <div class="option" data-topic="문학과 예술">
+                        <h3>🎨 문학과 예술</h3>
+                        <p>고전문학, 현대문학, 미술, 음악 등</p>
+                    </div>
+                    <div class="option" data-topic="경제와 경영">
+                        <h3>💼 경제와 경영</h3>
+                        <p>시장경제, 기업전략, 창업, 금융 등</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 학습 난이도 선택 -->
+            <div class="section">
+                <h2>⚡ 학습 난이도</h2>
+                <div class="options" id="difficultyOptions">
+                    <div class="option" data-difficulty="초급">
+                        <h3>🌱 초급</h3>
+                        <p>기본적인 프롬프트 작성법 학습</p>
+                    </div>
+                    <div class="option" data-difficulty="중급">
+                        <h3>🚀 중급</h3>
+                        <p>구체적이고 효과적인 프롬프트 작성</p>
+                    </div>
+                    <div class="option" data-difficulty="고급">
+                        <h3>🎯 고급</h3>
+                        <p>전문적이고 정교한 프롬프트 설계</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 학교급 선택 -->
+            <div class="section">
+                <h2>🎓 학교급</h2>
+                <div class="options" id="schoolLevelOptions">
+                    <div class="option" data-schoollevel="초등학생">
+                        <h3>🧒 초등학생</h3>
+                        <p>친근하고 격려 중심의 피드백</p>
+                    </div>
+                    <div class="option" data-schoollevel="중학생">
+                        <h3>👦 중학생</h3>
+                        <p>친절하면서도 체계적인 설명</p>
+                    </div>
+                    <div class="option" data-schoollevel="고등학생">
+                        <h3>👨‍🎓 고등학생</h3>
+                        <p>명확하고 효율적인 설명</p>
+                    </div>
+                    <div class="option" data-schoollevel="대학생">
+                        <h3>👩‍🎓 대학생</h3>
+                        <p>전문적이고 논리적인 설명</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-btn" id="startBtn" onclick="startLearning()">
+                학습 시작하기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedTopic = '';
+        let selectedDifficulty = '';
+        let selectedSchoolLevel = '';
+
+        // 옵션 선택 처리
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentElement;
+                const type = this.dataset.topic || this.dataset.difficulty || this.dataset.schoollevel;
+                
+                // 같은 그룹의 다른 선택 해제
+                parent.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                
+                // 현재 선택 활성화
+                this.classList.add('selected');
+                
+                // 선택값 저장
+                if (this.dataset.topic) selectedTopic = this.dataset.topic;
+                if (this.dataset.difficulty) selectedDifficulty = this.dataset.difficulty;
+                if (this.dataset.schoollevel) selectedSchoolLevel = this.dataset.schoollevel;
+                
+                // 모든 옵션이 선택되었는지 확인
+                checkAllSelected();
+            });
+        });
+
+        function checkAllSelected() {
+            const startBtn = document.getElementById('startBtn');
+            if (selectedTopic && selectedDifficulty && selectedSchoolLevel) {
+                startBtn.classList.add('active');
+            } else {
+                startBtn.classList.remove('active');
+            }
+        }
+
+        function startLearning() {
+            if (!selectedTopic || !selectedDifficulty || !selectedSchoolLevel) {
+                alert('모든 설정을 선택해주세요.');
+                return;
+            }
+
+            // 설정을 localStorage에 저장
+            const settings = {
+                topic: selectedTopic,
+                difficulty: selectedDifficulty,
+                schoolLevel: selectedSchoolLevel
+            };
+            localStorage.setItem('learningSettings', JSON.stringify(settings));
+            
+            // 학습 페이지로 이동
+            window.location.href = 'learning.html';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

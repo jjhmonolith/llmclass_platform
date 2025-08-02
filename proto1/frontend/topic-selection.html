@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Classroom - 주제 선택</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .selection-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .topic-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .topic-card {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .topic-card:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .topic-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            transform: translateY(-2px);
+        }
+
+        .topic-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .topic-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .topic-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .custom-input-section {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .custom-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .examples {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .examples h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .examples ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .examples li {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .examples li:before {
+            content: "•";
+            color: #667eea;
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .selection-container {
+                padding: 30px 20px;
+            }
+            
+            .topic-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="selection-container">
+        <div class="logo">🎓</div>
+        <h1 class="title">LLM Classroom</h1>
+        <p class="subtitle">
+            AI와 함께 배우는 프로젝트 기반 학습<br>
+            어떤 주제로 시작해볼까요?
+        </p>
+
+        <div class="topic-section">
+            <h3 class="section-title">📚 추천 주제</h3>
+            <div class="topic-grid">
+                <div class="topic-card" data-topic="사회 문제해결">
+                    <div class="topic-icon">🌍</div>
+                    <div class="topic-name">사회 문제해결</div>
+                    <div class="topic-description">환경, 빈곤, 교육 등 우리 사회의 문제를 찾고 해결방안을 모색해보세요</div>
+                </div>
+                
+                <div class="topic-card" data-topic="과학 탐구">
+                    <div class="topic-icon">🔬</div>
+                    <div class="topic-name">과학 탐구</div>
+                    <div class="topic-description">궁금한 과학 현상을 탐구하고 실험을 통해 답을 찾아보세요</div>
+                </div>
+                
+                <div class="topic-card" data-topic="역사 연구">
+                    <div class="topic-icon">📜</div>
+                    <div class="topic-name">역사 연구</div>
+                    <div class="topic-description">과거의 사건들을 조사하고 현재에 미치는 영향을 분석해보세요</div>
+                </div>
+                
+                <div class="topic-card" data-topic="문학 창작">
+                    <div class="topic-icon">✍️</div>
+                    <div class="topic-name">문학 창작</div>
+                    <div class="topic-description">시, 소설, 에세이 등을 창작하며 자신만의 문학 세계를 만들어보세요</div>
+                </div>
+                
+                <div class="topic-card" data-topic="기술과 미래">
+                    <div class="topic-icon">🚀</div>
+                    <div class="topic-name">기술과 미래</div>
+                    <div class="topic-description">새로운 기술이 우리 삶에 미치는 영향을 탐구해보세요</div>
+                </div>
+                
+                <div class="topic-card" data-topic="예술과 문화">
+                    <div class="topic-icon">🎨</div>
+                    <div class="topic-name">예술과 문화</div>
+                    <div class="topic-description">다양한 예술 형태와 문화를 탐구하고 창작 활동을 해보세요</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-input-section">
+            <h3 class="section-title">💡 직접 입력</h3>
+            <input 
+                type="text" 
+                id="customTopic" 
+                class="custom-input" 
+                placeholder="원하는 주제를 직접 입력해주세요"
+                maxlength="100"
+            >
+            <div class="input-hint">예: 우리 지역의 환경 문제, K-pop의 세계적 영향, 인공지능과 윤리 등</div>
+            
+            <div class="examples">
+                <h4>주제 예시</h4>
+                <ul>
+                    <li>우리 학교의 급식 문제를 해결하는 방법</li>
+                    <li>스마트폰이 청소년에게 미치는 영향</li>
+                    <li>기후 변화가 우리나라에 미치는 영향</li>
+                    <li>전래동화를 현대적으로 재해석하기</li>
+                    <li>미래의 교실은 어떤 모습일까?</li>
+                </ul>
+            </div>
+        </div>
+
+        <button id="startButton" class="start-button" disabled>
+            🚀 학습 시작하기
+        </button>
+    </div>
+
+    <script>
+        const topicCards = document.querySelectorAll('.topic-card');
+        const customTopicInput = document.getElementById('customTopic');
+        const startButton = document.getElementById('startButton');
+        let selectedTopic = '';
+
+        // 추천 주제 카드 클릭
+        topicCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // 기존 선택 해제
+                topicCards.forEach(c => c.classList.remove('selected'));
+                customTopicInput.value = '';
+                
+                // 새로운 선택
+                card.classList.add('selected');
+                selectedTopic = card.dataset.topic;
+                updateStartButton();
+            });
+        });
+
+        // 커스텀 주제 입력
+        customTopicInput.addEventListener('input', () => {
+            // 기존 카드 선택 해제
+            topicCards.forEach(c => c.classList.remove('selected'));
+            
+            selectedTopic = customTopicInput.value.trim();
+            updateStartButton();
+        });
+
+        // 시작 버튼 상태 업데이트
+        function updateStartButton() {
+            if (selectedTopic && selectedTopic.length > 0) {
+                startButton.disabled = false;
+                startButton.textContent = `🚀 "${selectedTopic}" 시작하기`;
+            } else {
+                startButton.disabled = true;
+                startButton.textContent = '🚀 학습 시작하기';
+            }
+        }
+
+        // 시작 버튼 클릭
+        startButton.addEventListener('click', () => {
+            if (selectedTopic) {
+                // 주제를 URL 파라미터로 전달하여 채팅 페이지로 이동
+                const encodedTopic = encodeURIComponent(selectedTopic);
+                window.location.href = `index.html?topic=${encodedTopic}`;
+            }
+        });
+
+        // 엔터 키로 시작
+        customTopicInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !startButton.disabled) {
+                startButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

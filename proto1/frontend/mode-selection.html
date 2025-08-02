@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Classroom - 학습 모드 선택</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .mode-container {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .mode-card {
+            flex: 1;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 35px 80px rgba(0,0,0,0.25);
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-card.rtcf::before {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mode-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .mode-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .mode-description {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .mode-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .mode-features li {
+            color: #555;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .mode-card.rtcf .mode-features li::before {
+            color: #f5576c;
+        }
+
+        .mode-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .mode-card.rtcf .mode-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mode-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-card.rtcf .mode-button:hover {
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .mode-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .mode-card {
+                padding: 30px 25px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .main-container > * {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .main-container > *:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .main-container > *:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🎓 LLM Classroom</h1>
+            <p>AI와 함께하는 스마트 학습 플랫폼</p>
+        </div>
+
+        <div class="mode-container">
+            <div class="mode-card strategic" onclick="goToMode('mode1')">
+                <span class="mode-icon">🌍</span>
+                <h2 class="mode-title">전략적 흐름 설계</h2>
+                <p class="mode-description">
+                    사회 문제를 체계적으로 분석하고 해결책을 설계하는 프로젝트 기반 학습
+                </p>
+                <ul class="mode-features">
+                    <li>AI 파트너와 실시간 대화</li>
+                    <li>전문 튜터의 학습 피드백</li>
+                    <li>단계별 프로젝트 가이드</li>
+                    <li>창의적 문제 해결 훈련</li>
+                </ul>
+                <button class="mode-button">
+                    전략적 흐름 설계 시작하기
+                </button>
+            </div>
+
+            <div class="mode-card rtcf" onclick="goToMode('mode2')">
+                <span class="mode-icon">📝</span>
+                <h2 class="mode-title">RTCF 연습</h2>
+                <p class="mode-description">
+                    효과적인 AI 프롬프트 작성 기법을 익히고 실전 연습을 통해 실력을 향상시키세요
+                </p>
+                <ul class="mode-features">
+                    <li>RTCF 프레임워크 학습</li>
+                    <li>실시간 프롬프트 평가</li>
+                    <li>개인화된 개선 제안</li>
+                    <li>단계별 실력 향상 추적</li>
+                </ul>
+                <button class="mode-button">
+                    RTCF 연습 시작하기
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🚀 더 나은 학습 경험을 위한 AI 교육 플랫폼</p>
+        </div>
+    </div>
+
+    <script>
+        function goToMode(mode) {
+            // 카드 클릭 효과
+            const cards = document.querySelectorAll('.mode-card');
+            cards.forEach(card => card.style.pointerEvents = 'none');
+            
+            const clickedCard = event.currentTarget;
+            clickedCard.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                if (mode === 'mode1') {
+                    // 전략적 흐름 설계로 이동
+                    window.location.href = '/mode1/';
+                } else if (mode === 'mode2') {
+                    // RTCF 연습으로 이동
+                    window.location.href = '/mode2/';
+                }
+            }, 200);
+        }
+
+        // 페이지 로드 애니메이션
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.main-container > *');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s ease-out';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
