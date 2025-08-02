@@ -13,19 +13,19 @@ if [ $EXISTING_PROCESSES -gt 0 ]; then
     echo ""
 fi
 
-# Hub - Service Selector (포트 8003)
-echo "🎯 Hub (서비스 허브) 시작 중... (포트 8003)"
-cd /Users/jjh_server/llmclass_platform/llm_classroom_hub/backend
+# Student Hub - Service Selector (포트 8003)
+echo "🎯 Student Hub (서비스 허브) 시작 중... (포트 8003)"
+cd /Users/jjh_server/llmclass_platform/student/backend
 python3 main.py &
 HUB_PID=$!
-echo "✅ Hub 시작됨 (PID: $HUB_PID)"
+echo "✅ Student Hub 시작됨 (PID: $HUB_PID)"
 
 # 잠시 대기
 sleep 2
 
 # Proto4 - Socratic AI (포트 8000)
 echo "📚 Proto4 (Socratic AI) 시작 중... (포트 8000)"
-cd /Users/jjh_server/llmclass_platform/llm_classroom_proto4/backend
+cd /Users/jjh_server/llmclass_platform/proto4/backend
 python3 main.py &
 PROTO4_PID=$!
 echo "✅ Proto4 시작됨 (PID: $PROTO4_PID)"
@@ -35,7 +35,7 @@ sleep 2
 
 # Proto1 - Strategic Learning (포트 8001)
 echo "📖 Proto1 (Strategic Learning) 시작 중... (포트 8001)"
-cd /Users/jjh_server/llmclass_platform/llm_classroom_proto1
+cd /Users/jjh_server/llmclass_platform/proto1
 python3 main.py &
 PROTO1_PID=$!
 echo "✅ Proto1 시작됨 (PID: $PROTO1_PID)"
@@ -45,7 +45,7 @@ sleep 2
 
 # Proto3 - Fire (RTCF) (포트 8002)
 echo "🔥 Proto3 (Fire - RTCF) 시작 중... (포트 8002)"
-cd /Users/jjh_server/llmclass_platform/llm_classroom_proto3
+cd /Users/jjh_server/llmclass_platform/proto3
 python3 main.py &
 PROTO3_PID=$!
 echo "✅ Proto3 시작됨 (PID: $PROTO3_PID)"
@@ -63,16 +63,16 @@ echo ""
 echo "🎉 모든 서비스가 시작되었습니다!"
 echo ""
 echo "📍 로컬 접속 주소:"
-echo "   • Hub (서비스 허브):     http://localhost:8003"
-echo "   • Proto4 (Socratic AI): http://localhost:8000"
-echo "   • Proto1 (Strategic):   http://localhost:8001"
-echo "   • Proto3 (Fire):        http://localhost:8002"
+echo "   • Student Hub (서비스 허브): http://localhost:8003"
+echo "   • Proto4 (Socratic AI):    http://localhost:8000"
+echo "   • Proto1 (Strategic):      http://localhost:8001"
+echo "   • Proto3 (Fire):           http://localhost:8002"
 echo ""
 echo "🌍 외부 접속 주소:"
-echo "   • Hub (서비스 허브):     https://hub.llmclass.org"
-echo "   • Proto4 (Socratic AI): https://socratic.llmclass.org"
-echo "   • Proto1 (Strategic):   https://strategic.llmclass.org"
-echo "   • Proto3 (Fire):        https://fire.llmclass.org"
+echo "   • Student Hub (서비스 허브): https://hub.llmclass.org"
+echo "   • Proto4 (Socratic AI):     https://socratic.llmclass.org"
+echo "   • Proto1 (Strategic):       https://strategic.llmclass.org"
+echo "   • Proto3 (Fire):            https://fire.llmclass.org"
 echo ""
 echo "📊 서비스 상태 확인: ./check_services.sh"
 echo "⚠️  모든 서비스를 중지하려면 이 터미널에서 Ctrl+C를 누르세요"
@@ -101,7 +101,7 @@ check_service() {
     fi
 }
 
-check_service 8003 "Hub (서비스 허브)"
+check_service 8003 "Student Hub (서비스 허브)"
 check_service 8000 "Proto4 (Socratic)"
 check_service 8001 "Proto1 (Strategic)"
 check_service 8002 "Proto3 (Fire)"
