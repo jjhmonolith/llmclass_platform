@@ -57,27 +57,65 @@ class SocraticChatHandler {
         
         // 점수 표시 옵션에 따라 UI 조정
         const progressSection = document.querySelector('.progress-section');
+        const chatContainer = document.querySelector('.chat-container');
+        
         if (progressSection) {
             if (this.showScore) {
-                progressSection.style.display = 'flex';
+                progressSection.style.display = 'block';
                 // 이해도 게이지 초기화
                 this.updateUnderstandingGauge(0);
+                // score-hidden 클래스 제거
+                if (chatContainer) {
+                    chatContainer.classList.remove('score-hidden');
+                }
             } else {
-                progressSection.style.display = 'none';
-                // 채팅 영역을 전체 너비로 확장
-                const chatMain = document.querySelector('.chat-main');
-                if (chatMain) {
-                    chatMain.style.gridTemplateColumns = '1fr';
+                // 점수 숨김 모드
+                if (chatContainer) {
+                    chatContainer.classList.add('score-hidden');
+                }
+                // 모바일에서는 CSS로 숨김 처리, 데스크톱에서는 display none
+                if (window.innerWidth > 768) {
+                    progressSection.style.display = 'none';
+                    // 채팅 영역을 전체 너비로 확장
+                    const chatMain = document.querySelector('.chat-main');
+                    if (chatMain) {
+                        chatMain.style.gridTemplateColumns = '1fr';
+                    }
                 }
             }
         }
     }
     
     setupEventListeners() {
-        // 채팅 폼 이벤트
+        // 데스크톱 채팅 폼 이벤트
         const chatForm = document.getElementById('chatForm');
         if (chatForm) {
             chatForm.addEventListener('submit', (e) => this.handleChatSubmit(e));
+        }
+        
+        // 모바일 채팅 폼 이벤트
+        const chatFormMobile = document.getElementById('chatFormMobile');
+        if (chatFormMobile) {
+            console.log('Mobile form found, adding event listener');
+            chatFormMobile.addEventListener('submit', (e) => {
+                console.log('Mobile form submitted');
+                this.handleChatSubmit(e);
+            });
+        } else {
+            console.log('Mobile form NOT found');
+        }
+        
+        // 모바일 전송 버튼 직접 클릭 이벤트도 추가
+        const sendBtnMobile = document.getElementById('sendBtnMobile');
+        if (sendBtnMobile) {
+            console.log('Mobile button found, adding click event listener');
+            sendBtnMobile.addEventListener('click', (e) => {
+                console.log('Mobile button clicked');
+                e.preventDefault();
+                this.handleChatSubmit(e);
+            });
+        } else {
+            console.log('Mobile button NOT found');
         }
         
         // 뒤로가기 버튼
@@ -88,7 +126,7 @@ class SocraticChatHandler {
             });
         }
         
-        // 엔터키로 전송 (Shift+Enter는 줄바꿈)
+        // 엔터키로 전송 (Shift+Enter는 줄바꿈) - 데스크톱
         const messageInput = document.getElementById('messageInput');
         if (messageInput) {
             messageInput.addEventListener('keydown', (e) => {
@@ -98,7 +136,138 @@ class SocraticChatHandler {
                 }
             });
         }
+        
+        // 엔터키로 전송 (Shift+Enter는 줄바꿈) - 모바일
+        const messageInputMobile = document.getElementById('messageInputMobile');
+        if (messageInputMobile && chatFormMobile) {
+            messageInputMobile.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatFormMobile.dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+        
+        // 모바일 스크롤 및 인디케이터 기능 초기화
+        this.setupMobileFeatures();
     }
+    
+    setupMobileFeatures() {
+        // 모바일 환경에서만 실행
+        if (window.innerWidth <= 768) {
+            this.initializeDrawer();
+        }
+        
+        // 윈도우 리사이즈 이벤트
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                this.initializeDrawer();
+            }
+        });
+    }
+    
+    initializeDrawer() {
+        const scoreDrawer = document.getElementById('scoreDrawer');
+        const drawerHandleArea = document.getElementById('drawerHandleArea');
+        
+        if (!scoreDrawer) return;
+        
+        // 드로어 핸들 영역 클릭으로 열기/닫기
+        if (drawerHandleArea) {
+            drawerHandleArea.addEventListener('click', () => {
+                this.toggleDrawer();
+            });
+        }
+        
+        // 드로어 외부 클릭시 닫기
+        document.addEventListener('click', (e) => {
+            if (scoreDrawer.classList.contains('open') && 
+                !scoreDrawer.contains(e.target)) {
+                // 채팅 영역 클릭시에만 닫기
+                if (e.target.closest('.chat-section')) {
+                    this.closeDrawer();
+                }
+            }
+        });
+    }
+    
+    openDrawer() {
+        const scoreDrawer = document.getElementById('scoreDrawer');
+        if (scoreDrawer && !this.isScoreHidden()) {
+            scoreDrawer.classList.add('open');
+        }
+    }
+    
+    closeDrawer() {
+        const scoreDrawer = document.getElementById('scoreDrawer');
+        if (scoreDrawer) {
+            scoreDrawer.classList.remove('open');
+        }
+    }
+    
+    toggleDrawer() {
+        const scoreDrawer = document.getElementById('scoreDrawer');
+        if (scoreDrawer && !this.isScoreHidden()) {
+            if (scoreDrawer.classList.contains('open')) {
+                this.closeDrawer();
+            } else {
+                this.openDrawer();
+            }
+        }
+    }
+    
+    isScoreHidden() {
+        return !this.showScore;
+    }
+    
+    // 현재 활성 영역 확인 (모바일 드로어 방식)
+    getCurrentActiveSection() {
+        if (window.innerWidth <= 768) {
+            const scoreDrawer = document.getElementById('scoreDrawer');
+            if (scoreDrawer && scoreDrawer.classList.contains('open')) {
+                return 'progress';
+            }
+            return 'chat';
+        }
+        return 'both'; // 데스크톱에서는 둘 다 보임
+    }
+    
+    // 점수 업데이트 알림 효과
+    triggerGlowEffect(targetSection) {
+        // 점수 숨김 모드에서는 알림 효과 없음
+        if (this.isScoreHidden()) return;
+        
+        if (window.innerWidth <= 768) {
+            const currentActive = this.getCurrentActiveSection();
+            
+            // 진행률 업데이트 시 드로어가 닫혀있으면 알림 효과만
+            if (targetSection === 'progress' && currentActive === 'chat') {
+                this.showScoreUpdateNotification();
+            }
+        }
+    }
+    
+    // 점수 업데이트 알림 애니메이션
+    showScoreUpdateNotification() {
+        const scoreDrawer = document.getElementById('scoreDrawer');
+        const drawerHandleArea = document.getElementById('drawerHandleArea');
+        
+        if (scoreDrawer && drawerHandleArea) {
+            // 드로어 흔들기 애니메이션
+            scoreDrawer.classList.add('score-updated');
+            
+            // 핸들 글로우 효과
+            drawerHandleArea.classList.add('glow');
+            
+            // 1초 후 효과 제거 (절반으로 단축)
+            setTimeout(() => {
+                scoreDrawer.classList.remove('score-updated');
+                drawerHandleArea.classList.remove('glow');
+            }, 1000);
+        }
+    }
+    
+    // 글로우 효과는 드로어 방식에서는 자동 열기로 대체
     
     async loadInitialMessage() {
         try {
@@ -138,18 +307,40 @@ class SocraticChatHandler {
     
     async handleChatSubmit(event) {
         event.preventDefault();
+        console.log('handleChatSubmit called, window width:', window.innerWidth);
         
+        // 모바일과 데스크톱 입력창 모두 확인
         const messageInput = document.getElementById('messageInput');
-        const userMessage = messageInput.value.trim();
+        const messageInputMobile = document.getElementById('messageInputMobile');
         
-        if (!userMessage) return;
+        console.log('messageInput found:', !!messageInput);
+        console.log('messageInputMobile found:', !!messageInputMobile);
+        
+        let currentInput = null;
+        let userMessage = '';
+        
+        // 모바일 입력창 우선 확인 (모바일에서는 데스크톱 입력창이 숨겨짐)
+        if (messageInputMobile && window.innerWidth <= 768) {
+            currentInput = messageInputMobile;
+            userMessage = messageInputMobile.value.trim();
+            console.log('Using mobile input, message:', userMessage);
+        } else if (messageInput && window.innerWidth > 768) {
+            currentInput = messageInput;
+            userMessage = messageInput.value.trim();
+            console.log('Using desktop input, message:', userMessage);
+        }
+        
+        if (!userMessage || !currentInput) {
+            console.log('No message or input found');
+            return;
+        }
         
         // 사용자 메시지 추가
         this.addMessage('user', userMessage);
         this.messages.push({ role: 'user', content: userMessage });
         
         // 입력 필드 초기화 및 비활성화
-        messageInput.value = '';
+        currentInput.value = '';
         this.disableInput();
         
         try {
@@ -211,6 +402,11 @@ class SocraticChatHandler {
         avatar.className = 'message-avatar';
         avatar.textContent = role === 'ai' ? '🏛️' : '👤';
         
+        // AI 메시지일 때 채팅 영역에 글로우 효과 트리거
+        if (role === 'ai') {
+            this.triggerGlowEffect('chat');
+        }
+        
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         messageContent.textContent = content;
@@ -243,6 +439,9 @@ class SocraticChatHandler {
         if (data.next_focus) {
             this.updateNextFocus(data.next_focus);
         }
+        
+        // 진행률 업데이트 시 진행률 영역에 글로우 효과 트리거
+        this.triggerGlowEffect('progress');
     }
 
     updateUnderstandingGauge(score) {
@@ -301,8 +500,8 @@ class SocraticChatHandler {
     }
     
     createDimensionContainer() {
-        const progressSection = document.querySelector('.progress-section');
-        if (!progressSection) return null;
+        const drawerContent = document.querySelector('.drawer-content');
+        if (!drawerContent) return null;
         
         const dimensionContainer = document.createElement('div');
         dimensionContainer.id = 'dimensionContainer';
@@ -349,11 +548,11 @@ class SocraticChatHandler {
         `;
         
         // 기존 이해도 게이지 다음에 삽입
-        const understandingGauge = progressSection.querySelector('.understanding-gauge');
+        const understandingGauge = drawerContent.querySelector('.understanding-gauge');
         if (understandingGauge) {
             understandingGauge.insertAdjacentElement('afterend', dimensionContainer);
         } else {
-            progressSection.appendChild(dimensionContainer);
+            drawerContent.appendChild(dimensionContainer);
         }
         
         return dimensionContainer;
@@ -374,8 +573,8 @@ class SocraticChatHandler {
     }
     
     createGrowthContainer() {
-        const progressSection = document.querySelector('.progress-section');
-        if (!progressSection) return null;
+        const drawerContent = document.querySelector('.drawer-content');
+        if (!drawerContent) return null;
         
         const growthContainer = document.createElement('div');
         growthContainer.id = 'growthContainer';
@@ -385,7 +584,14 @@ class SocraticChatHandler {
             <ul class="growth-list"></ul>
         `;
         
-        progressSection.appendChild(growthContainer);
+        // 이해도 게이지 다음에 삽입 (대화 팁 전에)
+        const understandingGauge = drawerContent.querySelector('.understanding-gauge');
+        if (understandingGauge) {
+            understandingGauge.insertAdjacentElement('afterend', growthContainer);
+        } else {
+            drawerContent.appendChild(growthContainer);
+        }
+        
         return growthContainer;
     }
     
@@ -402,8 +608,8 @@ class SocraticChatHandler {
     }
     
     createFocusContainer() {
-        const progressSection = document.querySelector('.progress-section');
-        if (!progressSection) return null;
+        const drawerContent = document.querySelector('.drawer-content');
+        if (!drawerContent) return null;
         
         const focusContainer = document.createElement('div');
         focusContainer.id = 'focusContainer';
@@ -413,7 +619,20 @@ class SocraticChatHandler {
             <p class="focus-text"></p>
         `;
         
-        progressSection.appendChild(focusContainer);
+        // 성장 지표 다음에 삽입 (대화 팁 전에)
+        const growthContainer = drawerContent.querySelector('.growth-container');
+        if (growthContainer) {
+            growthContainer.insertAdjacentElement('afterend', focusContainer);
+        } else {
+            // 성장 지표가 없으면 이해도 게이지 다음에
+            const understandingGauge = drawerContent.querySelector('.understanding-gauge');
+            if (understandingGauge) {
+                understandingGauge.insertAdjacentElement('afterend', focusContainer);
+            } else {
+                drawerContent.appendChild(focusContainer);
+            }
+        }
+        
         return focusContainer;
     }
     
@@ -460,20 +679,39 @@ class SocraticChatHandler {
     }
     
     enableInput() {
+        // 데스크톱 입력창
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         
         if (messageInput) {
             messageInput.disabled = false;
-            messageInput.focus();
+            if (window.innerWidth > 768) {
+                messageInput.focus();
+            }
         }
         
         if (sendBtn) {
             sendBtn.disabled = false;
         }
+        
+        // 모바일 입력창
+        const messageInputMobile = document.getElementById('messageInputMobile');
+        const sendBtnMobile = document.getElementById('sendBtnMobile');
+        
+        if (messageInputMobile) {
+            messageInputMobile.disabled = false;
+            if (window.innerWidth <= 768) {
+                messageInputMobile.focus();
+            }
+        }
+        
+        if (sendBtnMobile) {
+            sendBtnMobile.disabled = false;
+        }
     }
     
     disableInput() {
+        // 데스크톱 입력창
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         
@@ -483,6 +721,18 @@ class SocraticChatHandler {
         
         if (sendBtn) {
             sendBtn.disabled = true;
+        }
+        
+        // 모바일 입력창
+        const messageInputMobile = document.getElementById('messageInputMobile');
+        const sendBtnMobile = document.getElementById('sendBtnMobile');
+        
+        if (messageInputMobile) {
+            messageInputMobile.disabled = true;
+        }
+        
+        if (sendBtnMobile) {
+            sendBtnMobile.disabled = true;
         }
     }
 }
