@@ -32,7 +32,7 @@ body {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
@@ -52,27 +52,6 @@ body {
     font-weight: 300;
 }
 
-.stats {
-    display: flex;
-    gap: 30px;
-}
-
-.stat-item {
-    text-align: center;
-    color: white;
-}
-
-.stat-number {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
 
 /* 메인 컨텐츠 */
 .main {
@@ -101,39 +80,6 @@ body {
     line-height: 1.8;
 }
 
-/* 필터 */
-.filters {
-    margin-bottom: 40px;
-}
-
-.filter-tabs, .filter-categories {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.filter-tab, .category-tab {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.filter-tab:hover, .category-tab:hover,
-.filter-tab.active, .category-tab.active {
-    background: rgba(255, 255, 255, 0.9);
-    color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
 
 /* 서비스 그리드 */
 .services-grid {
@@ -212,43 +158,6 @@ body {
     line-height: 1.7;
 }
 
-.service-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.category {
-    background: #e9ecef;
-    color: #495057;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.difficulty {
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.difficulty-beginner {
-    color: #28a745;
-}
-
-.difficulty-intermediate {
-    color: #ffc107;
-}
-
-.difficulty-advanced {
-    color: #dc3545;
-}
 
 .service-features {
     display: flex;
@@ -359,23 +268,6 @@ body {
     text-align: center;
 }
 
-.footer-links {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: white;
-}
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
@@ -399,14 +291,6 @@ body {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
-    .stats {
-        gap: 20px;
-    }
-    
-    .stat-number {
-        font-size: 1.5rem;
-    }
 }
 
 @media (max-width: 480px) {
@@ -424,15 +308,6 @@ body {
     
     .card-header, .card-content, .card-footer {
         padding: 20px;
-    }
-    
-    .filter-tabs, .filter-categories {
-        gap: 8px;
-    }
-    
-    .filter-tab, .category-tab {
-        padding: 10px 16px;
-        font-size: 0.9rem;
     }
 }
 

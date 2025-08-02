@@ -16,16 +16,6 @@
                     <h1>🎓 LLM Classroom</h1>
                     <p>AI와 함께하는 개인 맞춤형 학습</p>
                 </div>
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number">{{ active_services }}</span>
-                        <span class="stat-label">활성 서비스</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ coming_soon_services }}</span>
-                        <span class="stat-label">출시 예정</span>
-                    </div>
-                </div>
             </div>
         </div>
     </header>
@@ -39,40 +29,17 @@
                 <p>다양한 AI 튜터들이 당신만의 학습 여정을 도와드립니다. 학습 스타일과 목표에 맞는 서비스를 선택해보세요.</p>
             </section>
 
-            <!-- 필터 탭 -->
-            <section class="filters">
-                <div class="filter-tabs">
-                    <button class="filter-tab active" data-filter="all">전체</button>
-                    <button class="filter-tab" data-filter="active">사용 가능</button>
-                    <button class="filter-tab" data-filter="coming_soon">출시 예정</button>
-                </div>
-                <div class="filter-categories">
-                    <button class="category-tab active" data-category="all">모든 카테고리</button>
-                    {% for category in services_by_category.keys() %}
-                    <button class="category-tab" data-category="{{ category }}">{{ category }}</button>
-                    {% endfor %}
-                </div>
-            </section>
 
             <!-- 서비스 그리드 -->
             <section class="services">
                 <div class="services-grid" id="servicesGrid">
                     {% for service in services %}
-                    <div class="service-card" 
-                         data-status="{{ service.status }}" 
-                         data-category="{{ service.category }}"
-                         data-difficulty="{{ service.difficulty }}">
-                        
+                    {% if service.status == "active" %}
+                    <div class="service-card">
                         <div class="card-header">
                             <div class="service-icon">{{ service.icon }}</div>
-                            <div class="service-status status-{{ service.status }}">
-                                {% if service.status == "active" %}
-                                    <i class="fas fa-check-circle"></i> 사용 가능
-                                {% elif service.status == "beta" %}
-                                    <i class="fas fa-flask"></i> 베타
-                                {% else %}
-                                    <i class="fas fa-clock"></i> 출시 예정
-                                {% endif %}
+                            <div class="service-status status-active">
+                                <i class="fas fa-check-circle"></i> 사용 가능
                             </div>
                         </div>
 
@@ -80,19 +47,6 @@
                             <h3 class="service-name">{{ service.name }}</h3>
                             <p class="service-description">{{ service.description }}</p>
                             
-                            <div class="service-meta">
-                                <span class="category">{{ service.category }}</span>
-                                <span class="difficulty difficulty-{{ service.difficulty }}">
-                                    {% if service.difficulty == "beginner" %}
-                                        <i class="fas fa-star"></i> 초급
-                                    {% elif service.difficulty == "intermediate" %}
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i> 중급
-                                    {% else %}
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 고급
-                                    {% endif %}
-                                </span>
-                            </div>
-
                             <div class="service-features">
                                 {% for feature in service.features %}
                                 <span class="feature-tag">{{ feature }}</span>
@@ -101,21 +55,12 @@
                         </div>
 
                         <div class="card-footer">
-                            {% if service.status == "active" %}
                             <a href="{{ service.url }}" class="btn btn-primary" target="_blank">
                                 <i class="fas fa-rocket"></i> 시작하기
                             </a>
-                            {% elif service.status == "beta" %}
-                            <a href="{{ service.url }}" class="btn btn-secondary" target="_blank">
-                                <i class="fas fa-flask"></i> 베타 체험
-                            </a>
-                            {% else %}
-                            <button class="btn btn-disabled" disabled>
-                                <i class="fas fa-clock"></i> 준비 중
-                            </button>
-                            {% endif %}
                         </div>
                     </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </section>
@@ -147,12 +92,6 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 LLM Classroom. AI와 함께하는 미래 교육.</p>
-            <div class="footer-links">
-                <a href="#about">소개</a>
-                <a href="#privacy">개인정보처리방침</a>
-                <a href="#terms">이용약관</a>
-                <a href="#contact">문의</a>
-            </div>
         </div>
     </footer>
 

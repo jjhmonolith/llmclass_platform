@@ -65,13 +65,13 @@ SERVICES = [
     ),
     ServiceInfo(
         id="fire",
-        name="RTCF 학습법",
-        description="Read, Think, Connect, Form 방법론을 활용한 심화 학습 시스템입니다.",
+        name="FIRE 학습법",
+        description="Focus, Inquire, Reflect, Extend 방법론을 활용한 심화 학습 시스템입니다.",
         url="https://fire.llmclass.org",
         icon="🔥",
         status="active",
         category="심화 학습",
-        features=["단계적 학습", "연결적 사고", "형성적 평가", "심화 분석"],
+        features=["집중 학습", "탐구 질문", "성찰적 사고", "확장 적용"],
         difficulty="advanced"
     ),
     # 향후 추가될 서비스들

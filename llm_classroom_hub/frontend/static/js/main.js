@@ -1,9 +1,6 @@
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 필터링 기능 초기화
-    initializeFilters();
-    
     // 카드 애니메이션 초기화
     initializeAnimations();
     
@@ -12,109 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
-// 필터링 기능 초기화
-function initializeFilters() {
-    const filterTabs = document.querySelectorAll('.filter-tab');
-    const categoryTabs = document.querySelectorAll('.category-tab');
-    const serviceCards = document.querySelectorAll('.service-card');
-    
-    let currentStatusFilter = 'all';
-    let currentCategoryFilter = 'all';
-    
-    // 상태 필터 이벤트 리스너
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // 활성 탭 변경
-            filterTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            currentStatusFilter = this.dataset.filter;
-            applyFilters();
-        });
-    });
-    
-    // 카테고리 필터 이벤트 리스너
-    categoryTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // 활성 탭 변경
-            categoryTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            currentCategoryFilter = this.dataset.category;
-            applyFilters();
-        });
-    });
-    
-    // 필터 적용 함수
-    function applyFilters() {
-        serviceCards.forEach(card => {
-            const cardStatus = card.dataset.status;
-            const cardCategory = card.dataset.category;
-            
-            let showCard = true;
-            
-            // 상태 필터 확인
-            if (currentStatusFilter !== 'all' && cardStatus !== currentStatusFilter) {
-                showCard = false;
-            }
-            
-            // 카테고리 필터 확인
-            if (currentCategoryFilter !== 'all' && cardCategory !== currentCategoryFilter) {
-                showCard = false;
-            }
-            
-            // 카드 표시/숨김
-            if (showCard) {
-                card.classList.remove('hidden');
-                card.style.display = 'block';
-                // 애니메이션 재적용
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 50);
-            } else {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.display = 'none';
-                    card.classList.add('hidden');
-                }, 300);
-            }
-        });
-        
-        updateFilterResults();
-    }
-    
-    // 필터 결과 업데이트
-    function updateFilterResults() {
-        const visibleCards = document.querySelectorAll('.service-card:not(.hidden)');
-        const totalCount = visibleCards.length;
-        
-        // 결과가 없을 때 메시지 표시 (필요시)
-        const servicesGrid = document.getElementById('servicesGrid');
-        let noResultsMessage = document.getElementById('noResultsMessage');
-        
-        if (totalCount === 0) {
-            if (!noResultsMessage) {
-                noResultsMessage = document.createElement('div');
-                noResultsMessage.id = 'noResultsMessage';
-                noResultsMessage.className = 'no-results';
-                noResultsMessage.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: white;">
-                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.6;"></i>
-                        <h3 style="margin-bottom: 10px;">검색 결과가 없습니다</h3>
-                        <p style="opacity: 0.8;">다른 필터를 선택해보세요.</p>
-                    </div>
-                `;
-                servicesGrid.appendChild(noResultsMessage);
-            }
-        } else {
-            if (noResultsMessage) {
-                noResultsMessage.remove();
-            }
-        }
-    }
-}
 
 // 카드 애니메이션 초기화
 function initializeAnimations() {
@@ -213,17 +107,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 키보드 네비게이션 지원
-document.addEventListener('keydown', function(e) {
-    // ESC 키로 모든 필터 초기화
-    if (e.key === 'Escape') {
-        const allFilterTab = document.querySelector('.filter-tab[data-filter="all"]');
-        const allCategoryTab = document.querySelector('.category-tab[data-category="all"]');
-        
-        if (allFilterTab) allFilterTab.click();
-        if (allCategoryTab) allCategoryTab.click();
-    }
-});
 
 // 페이지 로드 완료 후 통계 업데이트
 window.addEventListener('load', function() {
