@@ -170,23 +170,27 @@ class SocraticChatHandler {
         
         if (!scoreDrawer) return;
         
-        // 드로어 핸들 영역 클릭으로 열기/닫기
-        if (drawerHandleArea) {
-            drawerHandleArea.addEventListener('click', () => {
+        // 이미 초기화되었는지 확인
+        if (drawerHandleArea && !drawerHandleArea.hasAttribute('data-initialized')) {
+            drawerHandleArea.setAttribute('data-initialized', 'true');
+            
+            // 드로어 핸들 영역 클릭으로 열기/닫기
+            drawerHandleArea.addEventListener('click', (e) => {
+                e.stopPropagation(); // 이벤트 버블링 중지
                 this.toggleDrawer();
             });
-        }
-        
-        // 드로어 외부 클릭시 닫기
-        document.addEventListener('click', (e) => {
-            if (scoreDrawer.classList.contains('open') && 
-                !scoreDrawer.contains(e.target)) {
-                // 채팅 영역 클릭시에만 닫기
-                if (e.target.closest('.chat-section')) {
-                    this.closeDrawer();
+            
+            // 드로어 외부 클릭시 닫기
+            document.addEventListener('click', (e) => {
+                if (scoreDrawer.classList.contains('open') && 
+                    !scoreDrawer.contains(e.target)) {
+                    // 채팅 영역 클릭시에만 닫기
+                    if (e.target.closest('.chat-section')) {
+                        this.closeDrawer();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     
     openDrawer() {

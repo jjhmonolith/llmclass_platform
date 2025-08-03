@@ -547,7 +547,7 @@ body {
         transition: transform 0.3s ease;
         z-index: 1000;
         max-height: 70vh;
-        overflow-y: auto;
+        overflow: hidden; /* auto에서 hidden으로 변경 */
         padding: 0;
     }
     /* 드로어 열림 상태 */
@@ -557,18 +557,19 @@ body {
     
     /* 드로어 핸들과 안내 */
     .drawer-handle-area {
-        padding: 10px 15px; /* 상하 패딩 줄임 */
+        padding: 10px 15px;
         text-align: center;
         background: white;
         cursor: pointer;
         border-bottom: 1px solid #f1f5f9;
-        height: 50px; /* 높이 줄임 */
+        height: 50px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         position: relative;
-        z-index: 1000; /* 고정 배경보다 위에 */
+        z-index: 1001; /* 드로어 컨텐츠보다 위에 */
+        overflow: hidden; /* 스크롤 방지 */
     }
     
     .drawer-handle {
@@ -604,7 +605,9 @@ body {
     
     /* 드로어 내부 컨텐츠 */
     .drawer-content {
-        padding: 10px 20px 20px; /* 상단 패딩 더 줄임 */
+        padding: 10px 20px 20px;
+        overflow-y: auto; /* 컨텐츠 영역만 스크롤 가능 */
+        max-height: calc(70vh - 50px); /* 핸들 높이 빼기 */
     }
     
     .understanding-gauge,
