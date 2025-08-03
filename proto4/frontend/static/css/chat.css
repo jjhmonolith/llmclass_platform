@@ -1,3 +1,36 @@
+:root {
+    /* Colors */
+    --primary-blue: #3B82F6;
+    --primary-blue-dark: #1D4ED8;
+    --primary-text: #2C3E50;
+    --light-border: #DBEAFE;
+    --gray-border: #E2E8F0;
+    --bg-white: rgba(255, 255, 255, 0.95);
+    --bg-light: #F8FAFC;
+    --bg-lighter: #F1F5F9;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    --gradient-light: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    --gradient-sky: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 50%, #E0F6FF 100%);
+    
+    /* Spacing */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 15px;
+    
+    /* Heights */
+    --header-height: 60px;
+    --input-mobile-height: 165px;
+    --drawer-handle-height: 50px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,9 +39,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 50%, #E0F6FF 100%);
+    background: var(--gradient-sky);
     height: 100vh;
-    color: #2C3E50;
+    color: var(--primary-text);
     /* 모바일 브라우저에서 주소창 등에 의한 스크롤 방지 */
     overflow: hidden;
 }
@@ -20,11 +53,11 @@ body {
 }
 
 .chat-header {
-    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    background: var(--gradient-primary);
     color: white;
-    padding: 12px 20px;
+    padding: var(--spacing-sm) var(--spacing-lg);
     box-shadow: 0 2px 15px rgba(59, 130, 246, 0.3);
-    height: 60px; /* 고정 높이 지정 */
+    height: var(--header-height);
     box-sizing: border-box;
 }
 
@@ -48,8 +81,8 @@ body {
     background: rgba(255,255,255,0.2);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 10px var(--spacing-lg);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.2s ease;
@@ -74,8 +107,8 @@ body {
 .chat-section {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
     box-shadow: 0 5px 25px rgba(59, 130, 246, 0.15);
     overflow: hidden;
     backdrop-filter: blur(10px);
@@ -153,9 +186,9 @@ body {
 
 /* 데스크톱 전용 input-section 스타일 */
 .input-section {
-    padding: 20px;
-    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-    border-top: 1px solid #E2E8F0;
+    padding: var(--spacing-lg);
+    background: var(--gradient-light);
+    border-top: 1px solid var(--gray-border);
 }
 
 /* 데스크톱에서는 모바일 입력창 숨김 */
@@ -173,9 +206,9 @@ body {
 
 .chat-form textarea {
     flex: 1;
-    padding: 12px 15px;
-    border: 2px solid #DBEAFE;
-    border-radius: 12px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 2px solid var(--light-border);
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-family: inherit;
     resize: none;
@@ -195,11 +228,11 @@ body {
 }
 
 .chat-form button {
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--gradient-primary);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
@@ -388,17 +421,17 @@ body {
     
     .chat-section {
         position: fixed;
-        top: 60px; /* 고정 헤더 높이 60px */
+        top: var(--header-height);
         left: 0;
         right: 0;
-        bottom: 215px; /* 입력창(165px) + 핸들(50px) = 215px 위에 고정 */
+        bottom: calc(var(--input-mobile-height) + var(--drawer-handle-height));
         width: 100%;
         margin: 0;
         border-radius: 0;
-        background: rgba(255, 255, 255, 0.95);
+        background: var(--bg-white);
         backdrop-filter: blur(10px);
         overflow: hidden;
-        border-top: none; /* 헤더와의 경계선 제거 */
+        border-top: none;
     }
     
     .messages-container {
@@ -410,15 +443,15 @@ body {
     /* 모바일 전용 독립 입력창 */
     .input-section-mobile {
         position: fixed;
-        bottom: 50px; /* 핸들 높이만큼 위에 배치 */
+        bottom: var(--drawer-handle-height);
         left: 0;
         right: 0;
-        width: 100%; /* 전체 너비 */
-        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-        border-top: 1px solid #E2E8F0;
-        padding: 8px 15px; /* 상하 패딩 줄임, 좌우는 유지 */
+        width: 100%;
+        background: var(--gradient-light);
+        border-top: 1px solid var(--gray-border);
+        padding: var(--spacing-xs) var(--spacing-md);
         z-index: 999;
-        height: 165px; /* 1.5배 증가: 110px → 165px */
+        height: var(--input-mobile-height);
         display: flex;
         align-items: center;
         box-sizing: border-box;
@@ -429,7 +462,7 @@ body {
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 12px; /* 조화로운 간격으로 조정 */
+        gap: var(--spacing-sm);
     }
     
     /* 모바일 입력창 텍스트 영역 */
@@ -437,9 +470,9 @@ body {
         flex: 1;
         width: 100%;
         min-width: 0; /* flex shrink 허용 */
-        padding: 10px 15px; /* 상하 패딩 줄임, 좌우는 유지 */
-        border: 2px solid #DBEAFE; /* 경계선 두께 증가 */
-        border-radius: 12px; /* 모서리 더 둥글게 */
+        padding: 10px var(--spacing-md);
+        border: 2px solid var(--light-border);
+        border-radius: var(--radius-md);
         font-size: 1rem;
         font-family: inherit;
         resize: none;
@@ -466,10 +499,10 @@ body {
         height: 50px; /* 크기 증가로 조화로움 */
         min-width: 50px; /* 고정 너비 */
         padding: 0;
-        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        background: var(--gradient-primary);
         color: white;
         border: none;
-        border-radius: 12px; /* 텍스트 영역과 맞춤 */
+        border-radius: var(--radius-md);
         cursor: pointer;
         font-size: 18px; /* 폰트 크기 약간 증가 */
         font-weight: 600;
@@ -497,8 +530,8 @@ body {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 50px;
-        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); /* 입력창과 같은 배경 */
+        height: var(--drawer-handle-height);
+        background: var(--gradient-light);
         z-index: 998;
     }
     /* 진행률 섹션을 하단 드로어로 변경 */

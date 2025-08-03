@@ -87,35 +87,37 @@ class SocraticChatHandler {
     }
     
     setupEventListeners() {
-        // 데스크톱 채팅 폼 이벤트
-        const chatForm = document.getElementById('chatForm');
-        if (chatForm) {
-            chatForm.addEventListener('submit', (e) => this.handleChatSubmit(e));
-        }
+        // 폼 제출 이벤트 통합 처리
+        this.setupFormHandlers();
         
-        // 모바일 채팅 폼 이벤트
-        const chatFormMobile = document.getElementById('chatFormMobile');
-        if (chatFormMobile) {
-            console.log('Mobile form found, adding event listener');
-            chatFormMobile.addEventListener('submit', (e) => {
-                console.log('Mobile form submitted');
-                this.handleChatSubmit(e);
-            });
-        } else {
-            console.log('Mobile form NOT found');
-        }
+        // 버튼 이벤트 처리
+        this.setupButtonHandlers();
         
-        // 모바일 전송 버튼 직접 클릭 이벤트도 추가
+        // 키보드 이벤트 통합 처리
+        this.setupKeyboardHandlers();
+        
+        // 모바일 기능 초기화
+        this.setupMobileFeatures();
+    }
+    
+    setupFormHandlers() {
+        const forms = ['chatForm', 'chatFormMobile'];
+        forms.forEach(formId => {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('submit', (e) => this.handleChatSubmit(e));
+            }
+        });
+    }
+    
+    setupButtonHandlers() {
+        // 모바일 전송 버튼
         const sendBtnMobile = document.getElementById('sendBtnMobile');
         if (sendBtnMobile) {
-            console.log('Mobile button found, adding click event listener');
             sendBtnMobile.addEventListener('click', (e) => {
-                console.log('Mobile button clicked');
                 e.preventDefault();
                 this.handleChatSubmit(e);
             });
-        } else {
-            console.log('Mobile button NOT found');
         }
         
         // 뒤로가기 버튼
@@ -125,31 +127,27 @@ class SocraticChatHandler {
                 window.location.href = '/';
             });
         }
+    }
+    
+    setupKeyboardHandlers() {
+        const inputs = [
+            { inputId: 'messageInput', formId: 'chatForm' },
+            { inputId: 'messageInputMobile', formId: 'chatFormMobile' }
+        ];
         
-        // 엔터키로 전송 (Shift+Enter는 줄바꿈) - 데스크톱
-        const messageInput = document.getElementById('messageInput');
-        if (messageInput) {
-            messageInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    chatForm.dispatchEvent(new Event('submit'));
-                }
-            });
-        }
-        
-        // 엔터키로 전송 (Shift+Enter는 줄바꿈) - 모바일
-        const messageInputMobile = document.getElementById('messageInputMobile');
-        if (messageInputMobile && chatFormMobile) {
-            messageInputMobile.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    chatFormMobile.dispatchEvent(new Event('submit'));
-                }
-            });
-        }
-        
-        // 모바일 스크롤 및 인디케이터 기능 초기화
-        this.setupMobileFeatures();
+        inputs.forEach(({ inputId, formId }) => {
+            const input = document.getElementById(inputId);
+            const form = document.getElementById(formId);
+            
+            if (input && form) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                });
+            }
+        });
     }
     
     setupMobileFeatures() {
@@ -307,14 +305,10 @@ class SocraticChatHandler {
     
     async handleChatSubmit(event) {
         event.preventDefault();
-        console.log('handleChatSubmit called, window width:', window.innerWidth);
         
         // 모바일과 데스크톱 입력창 모두 확인
         const messageInput = document.getElementById('messageInput');
         const messageInputMobile = document.getElementById('messageInputMobile');
-        
-        console.log('messageInput found:', !!messageInput);
-        console.log('messageInputMobile found:', !!messageInputMobile);
         
         let currentInput = null;
         let userMessage = '';
@@ -323,15 +317,12 @@ class SocraticChatHandler {
         if (messageInputMobile && window.innerWidth <= 768) {
             currentInput = messageInputMobile;
             userMessage = messageInputMobile.value.trim();
-            console.log('Using mobile input, message:', userMessage);
         } else if (messageInput && window.innerWidth > 768) {
             currentInput = messageInput;
             userMessage = messageInput.value.trim();
-            console.log('Using desktop input, message:', userMessage);
         }
         
         if (!userMessage || !currentInput) {
-            console.log('No message or input found');
             return;
         }
         
@@ -678,62 +669,32 @@ class SocraticChatHandler {
         }
     }
     
+    toggleInput(enabled) {
+        const isMobile = window.innerWidth <= 768;
+        const elements = [
+            { id: 'messageInput', focus: !isMobile && enabled },
+            { id: 'sendBtn', focus: false },
+            { id: 'messageInputMobile', focus: isMobile && enabled },
+            { id: 'sendBtnMobile', focus: false }
+        ];
+        
+        elements.forEach(({ id, focus }) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.disabled = !enabled;
+                if (focus) {
+                    element.focus();
+                }
+            }
+        });
+    }
+    
     enableInput() {
-        // 데스크톱 입력창
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        
-        if (messageInput) {
-            messageInput.disabled = false;
-            if (window.innerWidth > 768) {
-                messageInput.focus();
-            }
-        }
-        
-        if (sendBtn) {
-            sendBtn.disabled = false;
-        }
-        
-        // 모바일 입력창
-        const messageInputMobile = document.getElementById('messageInputMobile');
-        const sendBtnMobile = document.getElementById('sendBtnMobile');
-        
-        if (messageInputMobile) {
-            messageInputMobile.disabled = false;
-            if (window.innerWidth <= 768) {
-                messageInputMobile.focus();
-            }
-        }
-        
-        if (sendBtnMobile) {
-            sendBtnMobile.disabled = false;
-        }
+        this.toggleInput(true);
     }
     
     disableInput() {
-        // 데스크톱 입력창
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        
-        if (messageInput) {
-            messageInput.disabled = true;
-        }
-        
-        if (sendBtn) {
-            sendBtn.disabled = true;
-        }
-        
-        // 모바일 입력창
-        const messageInputMobile = document.getElementById('messageInputMobile');
-        const sendBtnMobile = document.getElementById('sendBtnMobile');
-        
-        if (messageInputMobile) {
-            messageInputMobile.disabled = true;
-        }
-        
-        if (sendBtnMobile) {
-            sendBtnMobile.disabled = true;
-        }
+        this.toggleInput(false);
     }
 }
 
