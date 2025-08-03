@@ -24,6 +24,8 @@ body {
     color: white;
     padding: 12px 20px;
     box-shadow: 0 2px 15px rgba(59, 130, 246, 0.3);
+    height: 60px; /* 고정 높이 지정 */
+    box-sizing: border-box;
 }
 
 .topic-info {
@@ -385,13 +387,18 @@ body {
     }
     
     .chat-section {
+        position: fixed;
+        top: 60px; /* 고정 헤더 높이 60px */
+        left: 0;
+        right: 0;
+        bottom: 215px; /* 입력창(165px) + 핸들(50px) = 215px 위에 고정 */
         width: 100%;
-        height: calc(100dvh - 70px - 110px - 50px); /* 헤더(~70px), 입력창(110px), 핸들(50px) 높이 모두 제외 */
         margin: 0;
         border-radius: 0;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         overflow: hidden;
+        border-top: none; /* 헤더와의 경계선 제거 */
     }
     
     .messages-container {
@@ -409,9 +416,9 @@ body {
         width: 100%; /* 전체 너비 */
         background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
         border-top: 1px solid #E2E8F0;
-        padding: 12px; /* 적절한 패딩으로 복원 */
+        padding: 8px 15px; /* 상하 패딩 줄임, 좌우는 유지 */
         z-index: 999;
-        height: 110px; /* 높이 적절히 증가 */
+        height: 165px; /* 1.5배 증가: 110px → 165px */
         display: flex;
         align-items: center;
         box-sizing: border-box;
@@ -422,7 +429,7 @@ body {
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 8px; /* 간격 줄임 */
+        gap: 12px; /* 조화로운 간격으로 조정 */
     }
     
     /* 모바일 입력창 텍스트 영역 */
@@ -430,17 +437,16 @@ body {
         flex: 1;
         width: 100%;
         min-width: 0; /* flex shrink 허용 */
-        padding: 12px; /* 패딩 복원 */
-        border: 1px solid #DBEAFE;
-        border-radius: 10px; /* 모서리 약간 증가 */
+        padding: 10px 15px; /* 상하 패딩 줄임, 좌우는 유지 */
+        border: 2px solid #DBEAFE; /* 경계선 두께 증가 */
+        border-radius: 12px; /* 모서리 더 둥글게 */
         font-size: 1rem;
         font-family: inherit;
         resize: none;
         transition: border-color 0.3s ease;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95); /* 배경 더 불투명하게 */
         box-sizing: border-box;
-        max-height: 70px; /* 최대 높이 증가 */
-        min-height: 60px; /* 최소 높이 증가 */
+        height: 135px; /* 상하 여백 최소화: 165px - 30px(상하 15px씩) = 135px */
     }
     
     .input-section-mobile .chat-form textarea:focus {
@@ -456,19 +462,19 @@ body {
     
     /* 모바일 전송 버튼 - 아이콘만 */
     .input-section-mobile .chat-form button {
-        width: 40px; /* 크기 줄임 */
-        height: 40px; /* 크기 줄임 */
-        min-width: 40px; /* 고정 너비 */
+        width: 50px; /* 크기 증가로 조화로움 */
+        height: 50px; /* 크기 증가로 조화로움 */
+        min-width: 50px; /* 고정 너비 */
         padding: 0;
         background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
         color: white;
         border: none;
-        border-radius: 8px; /* 모서리 둥글기 줄임 */
+        border-radius: 12px; /* 텍스트 영역과 맞춤 */
         cursor: pointer;
-        font-size: 16px; /* 폰트 크기 줄임 */
+        font-size: 18px; /* 폰트 크기 약간 증가 */
         font-weight: 600;
         transition: opacity 0.2s ease, transform 0.2s ease;
-        box-shadow: 0 1px 6px rgba(59, 130, 246, 0.3); /* 그림자 줄임 */
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); /* 그림자 증가 */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -632,7 +638,7 @@ body {
 /* 점수 업데이트 알림 애니메이션 - 간단하게 한 번만 올라갔다 내려오기 */
 @keyframes scoreNotification {
     0% { transform: translateY(calc(100% - 50px)); }
-    50% { transform: translateY(calc(100% - 110px)); }
+    50% { transform: translateY(calc(100% - 165px)); }
     100% { transform: translateY(calc(100% - 50px)); }
 }
 
