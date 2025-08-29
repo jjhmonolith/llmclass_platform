@@ -1,21 +1,10 @@
 #!/bin/bash
 
-# 스크립트 실행 디렉토리 확인
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-BACKEND_DIR="${SCRIPT_DIR}/backend"
-
 echo "🚀 LLM Classroom Proto4 서버 시작 중..."
-echo "📁 작업 디렉토리: ${BACKEND_DIR}"
-
-# 디렉토리 존재 확인
-if [ ! -d "${BACKEND_DIR}" ]; then
-    echo "❌ 오류: backend 디렉토리를 찾을 수 없습니다: ${BACKEND_DIR}"
-    exit 1
-fi
 
 # 백엔드 서버 시작 (백그라운드)
 echo "📡 백엔드 서버 시작..."
-cd "${BACKEND_DIR}"
+cd /Users/jjh_server/llmclass_platform/llm_classroom_proto4/backend
 python3 main.py &
 BACKEND_PID=$!
 echo "✅ 백엔드 서버 시작됨 (PID: $BACKEND_PID)"

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# 🚀 LLM Classroom 자동 시작 설정 스크립트 (통합 버전)
+# 기존 개별 LaunchAgent들을 통합된 하나로 교체
+
+echo "🔧 LLM Classroom 자동 시작 설정..."
+echo "=================================="
+
+# 기존 개별 서비스 중지 및 제거
+echo "1. 기존 개별 서비스 정리 중..."
+for service in hub proto1 proto3 proto4 cloudflared platform-v2; do
+    launchctl unload ~/Library/LaunchAgents/com.llmclassroom.$service.plist 2>/dev/null || true
+    launchctl unload ~/Library/LaunchAgents/com.llmclass.$service.plist 2>/dev/null || true
+done
+
+# 기존 plist 파일 백업
+echo "2. 기존 설정 파일 백업..."
+mkdir -p archive/launchd
+mv ~/Library/LaunchAgents/com.llmclassroom.*.plist archive/launchd/ 2>/dev/null || true
+mv ~/Library/LaunchAgents/com.llmclass.*.plist archive/launchd/ 2>/dev/null || true
+
+# 새로운 통합 LaunchAgent 설치
+echo "3. 통합 서비스 설정..."
+cp config/launchd/com.llmclassroom.unified.plist ~/Library/LaunchAgents/
+
+# 권한 설정
+chmod 644 ~/Library/LaunchAgents/com.llmclassroom.unified.plist
+
+# 서비스 등록 및 시작
+echo "4. 서비스 시작..."
+launchctl load ~/Library/LaunchAgents/com.llmclassroom.unified.plist
+
+# 잠시 대기 후 상태 확인
+sleep 5
+echo "5. 상태 확인..."
+./llmclass status
+
+echo ""
+echo "✅ 설정 완료!"
+echo ""
+echo "이제 시스템 재부팅 시 자동으로 모든 서비스가 시작됩니다."
+echo ""
+echo "수동 제어 방법:"
+echo "  ./llmclass start    # 시작"
+echo "  ./llmclass stop     # 중지"
+echo "  ./llmclass status   # 상태 확인"
+echo ""

@@ -40,14 +40,12 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--gradient-sky);
-    height: 100vh;
+    min-height: 100vh;
     color: var(--primary-text);
-    /* 모바일 브라우저에서 주소창 등에 의한 스크롤 방지 */
-    overflow: hidden;
 }
 
 .chat-container {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -102,6 +100,7 @@ body {
     width: 100%;
     gap: 20px;
     padding: 20px;
+    min-height: calc(100vh - var(--header-height));
 }
 
 .chat-section {
@@ -118,7 +117,7 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    max-height: calc(100vh - 200px);
+    height: calc(100vh - var(--header-height) - 200px);
 }
 
 .message {
@@ -404,7 +403,7 @@ body {
     /* 모바일 전용 뷰포트 설정 */
     body {
         height: 100dvh; /* Dynamic Viewport Height */
-        overflow: hidden;
+        overflow: hidden; /* 모바일에서만 스크롤 방지 */
     }
     
     .chat-container {

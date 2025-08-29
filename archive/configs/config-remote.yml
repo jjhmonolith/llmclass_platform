@@ -1,0 +1,5 @@
+tunnel: b67f984d-f1a2-4010-b215-9691aa81938e
+credentials-file: /Users/jjh_server/.cloudflared/b67f984d-f1a2-4010-b215-9691aa81938e.json
+
+warp-routing:
+  enabled: true

@@ -1,0 +1,40 @@
+# LLM Classroom 서비스 설정
+# 생성일: 2025-08-25
+
+services:
+  hub:
+    name: "Student Hub"
+    port: 8003
+    path: "/Users/jjh_server/llmclass_platform/student/backend"
+    command: "python3 main.py"
+    domain: "hub.llmclass.org"
+    description: "메인 허브 - 서비스 선택"
+    
+  proto1:
+    name: "Strategic Learning"
+    port: 8001
+    path: "/Users/jjh_server/llmclass_platform/proto1"
+    command: "python3 main.py"
+    domain: "strategic.llmclass.org"
+    description: "주제 선택 학습"
+    
+  proto3:
+    name: "FIRE Prompt Learning"
+    port: 8002
+    path: "/Users/jjh_server/llmclass_platform/proto3"
+    command: "python3 main.py"
+    domain: "fire.llmclass.org"
+    description: "FIRE 프롬프트 학습"
+    
+  proto4:
+    name: "Socratic Learning"
+    port: 8000
+    path: "/Users/jjh_server/llmclass_platform/proto4/backend"
+    command: "python3 main.py"
+    domain: "socratic.llmclass.org"
+    description: "소크라테스식 학습"
+
+tunnel:
+  id: "b477ca04-c7fd-4617-8645-f4d357073d3c"
+  config_file: "~/.cloudflared/config-llmclass.yml"
+  credentials: "~/.cloudflared/b477ca04-c7fd-4617-8645-f4d357073d3c.json"

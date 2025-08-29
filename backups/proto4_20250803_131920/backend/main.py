@@ -24,12 +24,8 @@ app.add_middleware(
 )
 
 # 정적 파일 서빙 설정
-import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
-
-app.mount("/static", StaticFiles(directory=os.path.join(FRONTEND_DIR, "static")), name="static")
-app.mount("/pages", StaticFiles(directory=os.path.join(FRONTEND_DIR, "pages")), name="pages")
+app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+app.mount("/pages", StaticFiles(directory="../frontend/pages"), name="pages")
 
 app.include_router(chat_router, prefix="/api/v1")
 
@@ -37,7 +33,7 @@ app.include_router(chat_router, prefix="/api/v1")
 async def root():
     # index.html 파일을 서빙
     from fastapi.responses import FileResponse
-    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    return FileResponse("../frontend/index.html")
 
 @app.get("/health")
 async def health():
